@@ -155,7 +155,14 @@ function SetPopover({ facet, rows, onChange, onClose }){
     }
     return m;
   }, [rows]);
-  const opts = (facet.options || Object.keys(counts)).filter(o => o.toLowerCase().includes(q.toLowerCase()));
+  // Hide options that match zero rows -- they have no effect on the filter
+  // and reading 'Monthly (0)' alongside real choices was misleading users
+  // into picking dead options. A user-selected option is always kept visible
+  // so they can deselect it even if their other filters dropped its count
+  // to zero.
+  const opts = (facet.options || Object.keys(counts))
+    .filter(o => (counts[o] || 0) > 0 || (facet.value || []).includes(o))
+    .filter(o => o.toLowerCase().includes(q.toLowerCase()));
   const toggle = (o) => setDraft(d => d.includes(o) ? d.filter(x=>x!==o) : [...d, o]);
   return (
     <div className="pop" onClick={e=>e.stopPropagation()}>
