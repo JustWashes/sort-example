@@ -26,8 +26,18 @@ function CustRoster({ onQuick, onOpen }){
   const [sorts, setSorts] = React.useState([{id:"customerSince", get:r=>r.customerSince, type:"date", dir:"asc", label:"Joined"}]);
   const [statusTab, setStatusTab] = React.useState("All");
 
+  // Build the Plan type options dynamically from real customer data so we
+  // never list a product nobody holds. The full taxonomy is Vehicle ×
+  // Cadence; in the seed data only Bi-monthly + Quarterly variants exist.
+  const PLAN_TYPE_OPTIONS = React.useMemo(() => {
+    const seen = new Set();
+    for (const c of CUSTOMERS) for (const t of planTypesOf(c.plan)) seen.add(t);
+    return [...seen].sort();
+  }, []);
+
   const FACETS = [
     {id:"status",label:"Status",kind:"set",get:r=>r.status,options:["Active","Suspended","Inactive"]},
+    {id:"planType",label:"Plan type",kind:"set",get:r=>planTypesOf(r.plan),options:PLAN_TYPE_OPTIONS},
     {id:"plan",label:"Plan tier",kind:"set",get:r=>r.plan==="No Plan"?"No plan":r.plan.includes("Monthly")&&!r.plan.includes("Bi-")?"Monthly":r.plan.includes("Bi-Monthly")?"Bi-monthly":r.plan.includes("Quarterly")?"Quarterly":"Other",options:["No plan","Quarterly","Bi-monthly","Monthly"]},
     {id:"zip",label:"ZIP",kind:"set",get:r=>r.zip,options:[...new Set(CUSTOMERS.map(c=>c.zip))].sort()},
     {id:"city",label:"City",kind:"set",get:r=>r.city,options:[...new Set(CUSTOMERS.map(c=>c.city))].sort()},
