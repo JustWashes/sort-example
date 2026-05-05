@@ -328,6 +328,46 @@ function AddFacetMenu({ available, onAdd }){
   );
 }
 
+// Columns visibility menu — checkbox list of toggleable columns. Hidden
+// columns drop out of the table; show-all / hide-all shortcuts at the
+// bottom for fast resets.
+function ColumnsMenu({ columns, hidden, onChange }){
+  const [open, setOpen] = React.useState(false);
+  const toggle = (id) => {
+    onChange(hidden.includes(id) ? hidden.filter(x => x !== id) : [...hidden, id]);
+  };
+  const visibleCount = columns.length - hidden.length;
+  return (
+    <div style={{position:"relative",display:"inline-flex"}}>
+      <button className="btn btn-ghost btn-sm" onClick={()=>setOpen(o=>!o)} title="Show / hide table columns">
+        <I.eye /> Columns ({visibleCount}/{columns.length})
+      </button>
+      {open && (
+        <>
+          <div style={{position:"fixed",inset:0,zIndex:49}} onClick={()=>setOpen(false)} />
+          <div className="pop" style={{minWidth:220,right:0,left:"auto"}}>
+            <div className="pop-list">
+              {columns.map(c => {
+                const shown = !hidden.includes(c.id);
+                return (
+                  <div key={c.id} className={"pop-item"+(shown?" checked":"")} onClick={()=>toggle(c.id)}>
+                    <span className="cb">{shown && <I.check />}</span>
+                    <span>{c.label}</span>
+                  </div>
+                );
+              })}
+            </div>
+            <div className="pop-foot">
+              <button onClick={()=>onChange(columns.map(c=>c.id))}>Hide all</button>
+              <button className="apply" onClick={()=>onChange([])}>Show all</button>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 // Sort header — every click chains. Click an inactive header to append it as
 // the next sort key, click an active header to flip its direction, click ×
 // on the chip strip to remove it.
@@ -361,11 +401,12 @@ function SortHeader({ id, label, sorts, onSort, align }){
 // for filters, SORT_DEFS for sorts) on decode -- only ids and primitive
 // values cross the wire.
 
-function encodeRosterState({ view, tab, search, filters, sorts }){
+function encodeRosterState({ view, tab, search, filters, sorts, hiddenCols }){
   const p = new URLSearchParams();
   p.set("view", view);
   if (tab && tab !== "All") p.set("tab", tab);
   if (search) p.set("q", search);
+  if (hiddenCols && hiddenCols.length) p.set("hide", hiddenCols.join(","));
   for (const f of filters){
     if (f.kind === "set" && f.value?.length){
       p.set(`f.${f.id}`, f.value.join(","));
@@ -407,7 +448,8 @@ function decodeRosterState(hash, FACETS, SORT_DEFS){
     if (!def) return null;
     return {id, ...def, dir: dir === "desc" ? "desc" : "asc"};
   }).filter(Boolean) : null;
-  return { view, tab, search, filters, sorts };
+  const hiddenCols = (p.get("hide") || "").split(",").filter(Boolean);
+  return { view, tab, search, filters, sorts, hiddenCols };
 }
 
 window.FilterBarStyles = FilterBarStyles;
@@ -418,3 +460,4 @@ window.AddFacetMenu = AddFacetMenu;
 window.SortHeader = SortHeader;
 window.encodeRosterState = encodeRosterState;
 window.decodeRosterState = decodeRosterState;
+window.ColumnsMenu = ColumnsMenu;

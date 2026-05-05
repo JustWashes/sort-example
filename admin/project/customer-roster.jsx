@@ -36,7 +36,24 @@ function CustRoster({ onQuick, onOpen }){
   const [filters, setFilters] = React.useState([]);
   const [sorts, setSorts] = React.useState([{id:"customerSince", get:r=>r.customerSince, type:"date", dir:"asc", label:"Joined"}]);
   const [statusTab, setStatusTab] = React.useState("All");
+  const [hiddenCols, setHiddenCols] = React.useState([]);
   const [copied, setCopied] = React.useState(false);
+
+  // Toggleable columns. Order matches the table; the action cell at the
+  // far right (Quick / Profile buttons) is always visible.
+  const COLUMNS = [
+    {id:"name",label:"Customer"},
+    {id:"status",label:"Status"},
+    {id:"plan",label:"Plan"},
+    {id:"cadence",label:"Cadence"},
+    {id:"credits",label:"Credits"},
+    {id:"nextRenewal",label:"Renewal"},
+    {id:"bookings",label:"Bookings"},
+    {id:"lifetime",label:"LTV"},
+    {id:"zip",label:"ZIP"},
+    {id:"customerSince",label:"Joined"},
+  ];
+  const showCol = (id) => !hiddenCols.includes(id);
 
   // Build the Plan type options dynamically from real customer data so we
   // never list a product nobody holds. The full taxonomy is Vehicle ×
@@ -161,13 +178,14 @@ function CustRoster({ onQuick, onOpen }){
     if (decoded.search) setSearch(decoded.search);
     if (decoded.filters?.length) setFilters(decoded.filters);
     if (decoded.sorts) setSorts(decoded.sorts);
+    if (decoded.hiddenCols?.length) setHiddenCols(decoded.hiddenCols);
     hydratedRef.current = true;
   }, []);
   React.useEffect(() => {
     if (!hydratedRef.current) return;
-    const h = encodeRosterState({view:"customer-roster", tab:statusTab, search, filters, sorts});
+    const h = encodeRosterState({view:"customer-roster", tab:statusTab, search, filters, sorts, hiddenCols});
     if (h !== window.location.hash) window.history.replaceState(null, "", h);
-  }, [statusTab, search, filters, sorts]);
+  }, [statusTab, search, filters, sorts, hiddenCols]);
 
   const suggestion = React.useMemo(() => {
     if (sorted.length > 0) return null;
@@ -225,6 +243,7 @@ function CustRoster({ onQuick, onOpen }){
                 <button key={t} className={statusTab===t?"on":""} onClick={()=>setStatusTab(t)}>{t}</button>
               ))}
             </div>
+            <ColumnsMenu columns={COLUMNS} hidden={hiddenCols} onChange={setHiddenCols} />
             <button className="btn btn-ghost btn-sm" onClick={async()=>{
               await navigator.clipboard.writeText(window.location.href);
               setCopied(true); setTimeout(()=>setCopied(false), 1500);
@@ -281,31 +300,31 @@ function CustRoster({ onQuick, onOpen }){
 
         <table className="tbl">
           <thead><tr>
-            <SortHeader id="name" label="Customer" sorts={sorts} onSort={onSort} />
-            <SortHeader id="status" label="Status" sorts={sorts} onSort={onSort} />
-            <th>Plan</th>
-            <SortHeader id="cadence" label="Cadence" sorts={sorts} onSort={onSort} />
-            <SortHeader id="credits" label="Credits" sorts={sorts} onSort={onSort} align="right" />
-            <SortHeader id="nextRenewal" label="Renewal" sorts={sorts} onSort={onSort} />
-            <SortHeader id="bookings" label="Bookings" sorts={sorts} onSort={onSort} align="right" />
-            <SortHeader id="lifetime" label="LTV" sorts={sorts} onSort={onSort} align="right" />
-            <SortHeader id="zip" label="ZIP" sorts={sorts} onSort={onSort} />
-            <SortHeader id="customerSince" label="Joined" sorts={sorts} onSort={onSort} />
+            {showCol("name") && <SortHeader id="name" label="Customer" sorts={sorts} onSort={onSort} />}
+            {showCol("status") && <SortHeader id="status" label="Status" sorts={sorts} onSort={onSort} />}
+            {showCol("plan") && <th>Plan</th>}
+            {showCol("cadence") && <SortHeader id="cadence" label="Cadence" sorts={sorts} onSort={onSort} />}
+            {showCol("credits") && <SortHeader id="credits" label="Credits" sorts={sorts} onSort={onSort} align="right" />}
+            {showCol("nextRenewal") && <SortHeader id="nextRenewal" label="Renewal" sorts={sorts} onSort={onSort} />}
+            {showCol("bookings") && <SortHeader id="bookings" label="Bookings" sorts={sorts} onSort={onSort} align="right" />}
+            {showCol("lifetime") && <SortHeader id="lifetime" label="LTV" sorts={sorts} onSort={onSort} align="right" />}
+            {showCol("zip") && <SortHeader id="zip" label="ZIP" sorts={sorts} onSort={onSort} />}
+            {showCol("customerSince") && <SortHeader id="customerSince" label="Joined" sorts={sorts} onSort={onSort} />}
             <th></th>
           </tr></thead>
           <tbody>
             {sorted.map(c => (
               <tr key={c.id} onClick={()=>onQuick(c)}>
-                <td><div className="who"><div className="avatar avatar-md" style={{background:`linear-gradient(135deg,${c.color},${shade(c.color,-22)})`}}>{c.initials}</div><div className="meta"><span className="n">{c.name}</span><span className="e">{c.email}</span></div></div></td>
-                <td><span className={"pill "+(c.status==="Active"?"pill-green":c.status==="Suspended"?"pill-amber":"pill-grey")+" pill-soft"}><span className={"dot "+(c.status==="Active"?"dot-green":c.status==="Suspended"?"dot-amber":"")} />{c.status}</span></td>
-                <td>{c.plan === "No Plan" ? <span className="muted" style={{fontSize:12}}>No plan</span> : <span className="pill pill-blue pill-soft">{c.plan.length>32?c.plan.slice(0,30)+"…":c.plan}</span>}</td>
-                <td className="muted" style={{fontSize:12.5}}>{c.plan==="No Plan"?"No plan":c.plan.includes("Bi-Monthly")?"Bi-monthly":c.plan.includes("Monthly")?"Monthly":c.plan.includes("Quarterly")?"Quarterly":"—"}</td>
-                <td style={{textAlign:"right"}}><span style={{fontWeight:700,color: c.credits>0?"var(--violet)":"var(--muted)"}}>{c.credits}</span></td>
-                <td className="muted" style={{fontSize:12.5}}>{c.nextRenewal}</td>
-                <td style={{textAlign:"right",fontWeight:700}}>{c.bookings}</td>
-                <td style={{textAlign:"right",fontWeight:700}}>${(c.lifetime||0).toLocaleString()}</td>
-                <td className="mono" style={{fontSize:12}}>{c.zip}</td>
-                <td className="muted" style={{fontSize:12}}>{c.customerSince}<div style={{fontSize:10.5,color:"var(--muted)",marginTop:1}}>{daysSince(c.customerSince)}d ago</div></td>
+                {showCol("name") && <td><div className="who"><div className="avatar avatar-md" style={{background:`linear-gradient(135deg,${c.color},${shade(c.color,-22)})`}}>{c.initials}</div><div className="meta"><span className="n">{c.name}</span><span className="e">{c.email}</span></div></div></td>}
+                {showCol("status") && <td><span className={"pill "+(c.status==="Active"?"pill-green":c.status==="Suspended"?"pill-amber":"pill-grey")+" pill-soft"}><span className={"dot "+(c.status==="Active"?"dot-green":c.status==="Suspended"?"dot-amber":"")} />{c.status}</span></td>}
+                {showCol("plan") && <td>{c.plan === "No Plan" ? <span className="muted" style={{fontSize:12}}>No plan</span> : <span className="pill pill-blue pill-soft">{c.plan.length>32?c.plan.slice(0,30)+"…":c.plan}</span>}</td>}
+                {showCol("cadence") && <td className="muted" style={{fontSize:12.5}}>{c.plan==="No Plan"?"No plan":c.plan.includes("Bi-Monthly")?"Bi-monthly":c.plan.includes("Monthly")?"Monthly":c.plan.includes("Quarterly")?"Quarterly":"—"}</td>}
+                {showCol("credits") && <td style={{textAlign:"right"}}><span style={{fontWeight:700,color: c.credits>0?"var(--violet)":"var(--muted)"}}>{c.credits}</span></td>}
+                {showCol("nextRenewal") && <td className="muted" style={{fontSize:12.5}}>{c.nextRenewal}</td>}
+                {showCol("bookings") && <td style={{textAlign:"right",fontWeight:700}}>{c.bookings}</td>}
+                {showCol("lifetime") && <td style={{textAlign:"right",fontWeight:700}}>${(c.lifetime||0).toLocaleString()}</td>}
+                {showCol("zip") && <td className="mono" style={{fontSize:12}}>{c.zip}</td>}
+                {showCol("customerSince") && <td className="muted" style={{fontSize:12}}>{c.customerSince}<div style={{fontSize:10.5,color:"var(--muted)",marginTop:1}}>{daysSince(c.customerSince)}d ago</div></td>}
                 <td><div className="actcell" onClick={e=>e.stopPropagation()}>
                   <button className="btn btn-ghost btn-sm" onClick={()=>onQuick(c)}><I.eye /> Quick</button>
                   <button className="btn btn-primary btn-sm" onClick={()=>onOpen(c)}>Profile <I.chev /></button>

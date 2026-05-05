@@ -53,7 +53,23 @@ function TechRoster({ onQuick, onOpen }){
   const [tab, setTab] = React.useState("Roster");
   const [search, setSearch] = React.useState("");
   const [filters, setFilters] = React.useState([]);
+  const [hiddenCols, setHiddenCols] = React.useState([]);
   const [copied, setCopied] = React.useState(false);
+
+  const COLUMNS = [
+    {id:"handle",label:"Technician"},
+    {id:"type",label:"Type"},
+    {id:"onboarding",label:"Onboarding"},
+    {id:"status",label:"Status"},
+    {id:"activation",label:"Activation"},
+    {id:"bgCheck",label:"BG check"},
+    {id:"monthlyJobs",label:"Monthly"},
+    {id:"lifetimeJobs",label:"Lifetime"},
+    {id:"tier",label:"Pay tier"},
+    {id:"joined",label:"Joined"},
+    {id:"rating",label:"Rating"},
+  ];
+  const showCol = (id) => !hiddenCols.includes(id);
   const [sorts, setSorts] = React.useState([{id:"joined", get:r=>r.joined, type:"date", dir:"desc", label:"Joined"}]);
 
   const FACETS = [
@@ -172,13 +188,14 @@ function TechRoster({ onQuick, onOpen }){
     if (decoded.search) setSearch(decoded.search);
     if (decoded.filters?.length) setFilters(decoded.filters);
     if (decoded.sorts) setSorts(decoded.sorts);
+    if (decoded.hiddenCols?.length) setHiddenCols(decoded.hiddenCols);
     hydratedRef.current = true;
   }, []);
   React.useEffect(() => {
     if (!hydratedRef.current) return;
-    const h = encodeRosterState({view:"technician-roster", tab:filter, search, filters, sorts});
+    const h = encodeRosterState({view:"technician-roster", tab:filter, search, filters, sorts, hiddenCols});
     if (h !== window.location.hash) window.history.replaceState(null, "", h);
-  }, [filter, search, filters, sorts]);
+  }, [filter, search, filters, sorts, hiddenCols]);
 
   const suggestion = React.useMemo(() => {
     if (techs.length > 0) return null;
@@ -225,6 +242,7 @@ function TechRoster({ onQuick, onOpen }){
                 <button key={f} className={filter===f?"on":""} onClick={()=>setFilter(f)}>{f}</button>
               ))}
             </div>
+            <ColumnsMenu columns={COLUMNS} hidden={hiddenCols} onChange={setHiddenCols} />
             <button className="btn btn-ghost btn-sm" onClick={async()=>{
               await navigator.clipboard.writeText(window.location.href);
               setCopied(true); setTimeout(()=>setCopied(false), 1500);
@@ -283,48 +301,48 @@ function TechRoster({ onQuick, onOpen }){
         <table className="tbl">
           <thead>
             <tr>
-              <SortHeader id="handle" label="Technician" sorts={sorts} onSort={onSort} />
-              <SortHeader id="type" label="Type" sorts={sorts} onSort={onSort} />
-              <SortHeader id="onboarding" label="Onboarding" sorts={sorts} onSort={onSort} />
-              <SortHeader id="status" label="Status" sorts={sorts} onSort={onSort} />
-              <th>Activation</th>
-              <SortHeader id="bgCheck" label="BG check" sorts={sorts} onSort={onSort} />
-              <SortHeader id="monthlyJobs" label="Monthly" sorts={sorts} onSort={onSort} align="right" />
-              <SortHeader id="lifetimeJobs" label="Lifetime" sorts={sorts} onSort={onSort} align="right" />
-              <SortHeader id="tier" label="Pay tier" sorts={sorts} onSort={onSort} />
-              <SortHeader id="joined" label="Joined" sorts={sorts} onSort={onSort} />
-              <SortHeader id="rating" label="Rating" sorts={sorts} onSort={onSort} />
+              {showCol("handle") && <SortHeader id="handle" label="Technician" sorts={sorts} onSort={onSort} />}
+              {showCol("type") && <SortHeader id="type" label="Type" sorts={sorts} onSort={onSort} />}
+              {showCol("onboarding") && <SortHeader id="onboarding" label="Onboarding" sorts={sorts} onSort={onSort} />}
+              {showCol("status") && <SortHeader id="status" label="Status" sorts={sorts} onSort={onSort} />}
+              {showCol("activation") && <th>Activation</th>}
+              {showCol("bgCheck") && <SortHeader id="bgCheck" label="BG check" sorts={sorts} onSort={onSort} />}
+              {showCol("monthlyJobs") && <SortHeader id="monthlyJobs" label="Monthly" sorts={sorts} onSort={onSort} align="right" />}
+              {showCol("lifetimeJobs") && <SortHeader id="lifetimeJobs" label="Lifetime" sorts={sorts} onSort={onSort} align="right" />}
+              {showCol("tier") && <SortHeader id="tier" label="Pay tier" sorts={sorts} onSort={onSort} />}
+              {showCol("joined") && <SortHeader id="joined" label="Joined" sorts={sorts} onSort={onSort} />}
+              {showCol("rating") && <SortHeader id="rating" label="Rating" sorts={sorts} onSort={onSort} />}
               <th></th>
             </tr>
           </thead>
           <tbody>
             {techs.map(t => (
               <tr key={t.id} onClick={()=>onQuick(t)}>
-                <td>
+                {showCol("handle") && <td>
                   <div className="who">
                     <div className="avatar avatar-md" style={{background:`linear-gradient(135deg,${t.color},${shade(t.color,-22)})`}}>{t.initials}</div>
                     <div className="meta"><span className="n">{t.handle}</span><span className="e">{t.email} · {t.baseZip}</span></div>
                   </div>
-                </td>
-                <td><span className={"pill "+(t.type==="Certified"?"pill-cyan":"pill-grey")}>{t.type}</span></td>
-                <td>
+                </td>}
+                {showCol("type") && <td><span className={"pill "+(t.type==="Certified"?"pill-cyan":"pill-grey")}>{t.type}</span></td>}
+                {showCol("onboarding") && <td>
                   <div className="ob">
                     <div className="pct">{t.onboarding}%</div>
                     <div className="bar"><div style={{width:`${t.onboarding}%`}} /></div>
                   </div>
-                </td>
-                <td><span className={"pill "+(t.status==="Active"?"pill-green":t.status==="Pending"?"pill-amber":"pill-grey")}><span className={"dot "+(t.status==="Active"?"dot-green":t.status==="Pending"?"dot-amber":"")} />{t.status}</span></td>
-                <td>{t.status==="Active" ? <button className="btn btn-ghost btn-xs" onClick={e=>e.stopPropagation()}>Deactivate</button> : <button className="btn btn-ghost btn-xs" onClick={e=>e.stopPropagation()}>Activate</button>}</td>
-                <td><span className={"pill "+(t.bgCheck==="Confirmed"?"pill-green":"pill-grey")}>{t.bgCheck}</span></td>
-                <td style={{textAlign:"right",fontWeight:700}}>{t.monthlyJobs}</td>
-                <td style={{textAlign:"right",fontWeight:700}}>{t.lifetimeJobs}</td>
-                <td>
+                </td>}
+                {showCol("status") && <td><span className={"pill "+(t.status==="Active"?"pill-green":t.status==="Pending"?"pill-amber":"pill-grey")}><span className={"dot "+(t.status==="Active"?"dot-green":t.status==="Pending"?"dot-amber":"")} />{t.status}</span></td>}
+                {showCol("activation") && <td>{t.status==="Active" ? <button className="btn btn-ghost btn-xs" onClick={e=>e.stopPropagation()}>Deactivate</button> : <button className="btn btn-ghost btn-xs" onClick={e=>e.stopPropagation()}>Activate</button>}</td>}
+                {showCol("bgCheck") && <td><span className={"pill "+(t.bgCheck==="Confirmed"?"pill-green":"pill-grey")}>{t.bgCheck}</span></td>}
+                {showCol("monthlyJobs") && <td style={{textAlign:"right",fontWeight:700}}>{t.monthlyJobs}</td>}
+                {showCol("lifetimeJobs") && <td style={{textAlign:"right",fontWeight:700}}>{t.lifetimeJobs}</td>}
+                {showCol("tier") && <td>
                   <div className="pay-tier" style={{color: t.tier==="Tier 3"?"#0F7A4E": t.tier==="Tier 1"?"#13499F":"var(--muted)"}}>
                     {t.tier} · ${t.payRate}<span className="next">{t.tier==="Tier 3"?"Top tier":"Promo to next"}</span>
                   </div>
-                </td>
-                <td className="muted" style={{fontSize:12}}>{t.joined}</td>
-                <td>{t.rating ? <span style={{display:"inline-flex",alignItems:"center",gap:4,fontWeight:700,color:"#E29411"}}><I.star /> {t.rating.toFixed(1)}</span> : <span className="muted" style={{fontSize:11}}>No reviews</span>}</td>
+                </td>}
+                {showCol("joined") && <td className="muted" style={{fontSize:12}}>{t.joined}</td>}
+                {showCol("rating") && <td>{t.rating ? <span style={{display:"inline-flex",alignItems:"center",gap:4,fontWeight:700,color:"#E29411"}}><I.star /> {t.rating.toFixed(1)}</span> : <span className="muted" style={{fontSize:11}}>No reviews</span>}</td>}
                 <td>
                   <div className="actcell" onClick={e=>e.stopPropagation()}>
                     <button className="btn btn-ghost btn-sm" onClick={()=>onQuick(t)}><I.eye /> Quick</button>
