@@ -87,9 +87,26 @@ function CustRoster({ onQuick, onOpen }){
   };
 
   // Apply tab as an implicit filter
+  const SEARCH_FIELDS = ["name","email","handle","zip","city","plan"];
   const tabFiltered = statusTab==="All" ? CUSTOMERS : CUSTOMERS.filter(c => c.status===statusTab);
-  const filtered = applyFilters(tabFiltered, filters, search, ["name","email","handle","zip","city","plan"]);
+  const filtered = applyFilters(tabFiltered, filters, search, SEARCH_FIELDS);
   const sorted = applySort(filtered, sorts);
+
+  // When the user has filtered themselves into an empty result, find the
+  // single filter whose removal would unblock the most rows. Cheap because
+  // we only compute it when the table is empty.
+  const suggestion = React.useMemo(() => {
+    if (sorted.length > 0) return null;
+    const candidates = [];
+    if (statusTab !== "All") candidates.push({label:`status tab "${statusTab}"`, action:()=>setStatusTab("All"), count: applyFilters(CUSTOMERS, filters, search, SEARCH_FIELDS).length});
+    if (search.trim()) candidates.push({label:`search "${search}"`, action:()=>setSearch(""), count: applyFilters(tabFiltered, filters, "", SEARCH_FIELDS).length});
+    for (const f of filters){
+      const without = filters.filter(x => x.id !== f.id);
+      candidates.push({label:f.label, action:()=>setFilters(prev=>prev.filter(x=>x.id!==f.id)), count: applyFilters(tabFiltered, without, search, SEARCH_FIELDS).length});
+    }
+    candidates.sort((a,b) => b.count - a.count);
+    return candidates[0]?.count > 0 ? candidates[0] : null;
+  }, [sorted.length, filters, search, statusTab]);
 
   const updateFacet = (id, patch) => setFilters(prev => prev.map(f => f.id===id ? {...f, ...patch} : f));
   const removeFacet = (id) => setFilters(prev => prev.filter(f => f.id !== id));
@@ -199,7 +216,14 @@ function CustRoster({ onQuick, onOpen }){
         {sorted.length === 0 && (
           <div className="empty-state">
             <div className="em">No customers match this view</div>
-            <div style={{fontSize:12.5}}>Try clearing a filter or adjusting the date range.</div>
+            {suggestion ? (
+              <div style={{fontSize:12.5}}>
+                Try removing <b>{suggestion.label}</b> · would show <b>{suggestion.count}</b> customer{suggestion.count===1?"":"s"}{" "}
+                <button className="btn btn-ghost btn-xs" onClick={suggestion.action} style={{marginLeft:6}}>Remove</button>
+              </div>
+            ) : (
+              <div style={{fontSize:12.5}}>Try clearing a filter or adjusting the date range.</div>
+            )}
           </div>
         )}
 

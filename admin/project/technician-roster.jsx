@@ -112,9 +112,23 @@ function TechRoster({ onQuick, onOpen }){
   };
   const availableToAdd = FACETS.filter(f => !filters.find(x=>x.id===f.id));
 
+  const SEARCH_FIELDS = ["name","email","handle","baseZip","tier"];
   const segFiltered = TECHS.filter(t => filter==="All" || t.type === filter);
-  const filtered = applyFilters(segFiltered, filters, search, ["name","email","handle","baseZip","tier"]);
+  const filtered = applyFilters(segFiltered, filters, search, SEARCH_FIELDS);
   const techs = applySort(filtered, sorts);
+
+  const suggestion = React.useMemo(() => {
+    if (techs.length > 0) return null;
+    const candidates = [];
+    if (filter !== "All") candidates.push({label:`type "${filter}"`, action:()=>setFilter("All"), count: applyFilters(TECHS, filters, search, SEARCH_FIELDS).length});
+    if (search.trim()) candidates.push({label:`search "${search}"`, action:()=>setSearch(""), count: applyFilters(segFiltered, filters, "", SEARCH_FIELDS).length});
+    for (const f of filters){
+      const without = filters.filter(x => x.id !== f.id);
+      candidates.push({label:f.label, action:()=>setFilters(prev=>prev.filter(x=>x.id!==f.id)), count: applyFilters(segFiltered, without, search, SEARCH_FIELDS).length});
+    }
+    candidates.sort((a,b) => b.count - a.count);
+    return candidates[0]?.count > 0 ? candidates[0] : null;
+  }, [techs.length, filters, search, filter]);
   return (
     <>
       <div className="kpi-row">
@@ -234,7 +248,14 @@ function TechRoster({ onQuick, onOpen }){
         {techs.length === 0 && (
           <div className="empty-state">
             <div className="em">No technicians match this view</div>
-            <div style={{fontSize:12.5}}>Try clearing a filter or adjusting the date range.</div>
+            {suggestion ? (
+              <div style={{fontSize:12.5}}>
+                Try removing <b>{suggestion.label}</b> · would show <b>{suggestion.count}</b> technician{suggestion.count===1?"":"s"}{" "}
+                <button className="btn btn-ghost btn-xs" onClick={suggestion.action} style={{marginLeft:6}}>Remove</button>
+              </div>
+            ) : (
+              <div style={{fontSize:12.5}}>Try clearing a filter or adjusting the date range.</div>
+            )}
           </div>
         )}
 
