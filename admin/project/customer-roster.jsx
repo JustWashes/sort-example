@@ -52,6 +52,7 @@ function CustRoster({ onQuick, onOpen }){
     {id:"lifetime",label:"LTV"},
     {id:"zip",label:"ZIP"},
     {id:"customerSince",label:"Joined"},
+    {id:"actions",label:"Actions"},
   ];
   const showCol = (id) => !hiddenCols.includes(id);
 
@@ -310,7 +311,7 @@ function CustRoster({ onQuick, onOpen }){
             {showCol("lifetime") && <SortHeader id="lifetime" label="LTV" sorts={sorts} onSort={onSort} align="right" />}
             {showCol("zip") && <SortHeader id="zip" label="ZIP" sorts={sorts} onSort={onSort} />}
             {showCol("customerSince") && <SortHeader id="customerSince" label="Joined" sorts={sorts} onSort={onSort} />}
-            <th></th>
+            {showCol("actions") && <th></th>}
           </tr></thead>
           <tbody>
             {sorted.map(c => (
@@ -325,10 +326,10 @@ function CustRoster({ onQuick, onOpen }){
                 {showCol("lifetime") && <td style={{textAlign:"right",fontWeight:700}}>${(c.lifetime||0).toLocaleString()}</td>}
                 {showCol("zip") && <td className="mono" style={{fontSize:12}}>{c.zip}</td>}
                 {showCol("customerSince") && <td className="muted" style={{fontSize:12}}>{c.customerSince}<div style={{fontSize:10.5,color:"var(--muted)",marginTop:1}}>{daysSince(c.customerSince)}d ago</div></td>}
-                <td><div className="actcell" onClick={e=>e.stopPropagation()}>
+                {showCol("actions") && <td><div className="actcell" onClick={e=>e.stopPropagation()}>
                   <button className="btn btn-ghost btn-sm" onClick={()=>onQuick(c)}><I.eye /> Quick</button>
                   <button className="btn btn-primary btn-sm" onClick={()=>onOpen(c)}>Profile <I.chev /></button>
-                </div></td>
+                </div></td>}
               </tr>
             ))}
           </tbody>

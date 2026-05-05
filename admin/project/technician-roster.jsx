@@ -68,6 +68,7 @@ function TechRoster({ onQuick, onOpen }){
     {id:"tier",label:"Pay tier"},
     {id:"joined",label:"Joined"},
     {id:"rating",label:"Rating"},
+    {id:"actions",label:"Actions"},
   ];
   const showCol = (id) => !hiddenCols.includes(id);
   const [sorts, setSorts] = React.useState([{id:"joined", get:r=>r.joined, type:"date", dir:"desc", label:"Joined"}]);
@@ -312,7 +313,7 @@ function TechRoster({ onQuick, onOpen }){
               {showCol("tier") && <SortHeader id="tier" label="Pay tier" sorts={sorts} onSort={onSort} />}
               {showCol("joined") && <SortHeader id="joined" label="Joined" sorts={sorts} onSort={onSort} />}
               {showCol("rating") && <SortHeader id="rating" label="Rating" sorts={sorts} onSort={onSort} />}
-              <th></th>
+              {showCol("actions") && <th></th>}
             </tr>
           </thead>
           <tbody>
@@ -343,12 +344,12 @@ function TechRoster({ onQuick, onOpen }){
                 </td>}
                 {showCol("joined") && <td className="muted" style={{fontSize:12}}>{t.joined}</td>}
                 {showCol("rating") && <td>{t.rating ? <span style={{display:"inline-flex",alignItems:"center",gap:4,fontWeight:700,color:"#E29411"}}><I.star /> {t.rating.toFixed(1)}</span> : <span className="muted" style={{fontSize:11}}>No reviews</span>}</td>}
-                <td>
+                {showCol("actions") && <td>
                   <div className="actcell" onClick={e=>e.stopPropagation()}>
                     <button className="btn btn-ghost btn-sm" onClick={()=>onQuick(t)}><I.eye /> Quick</button>
                     <button className="btn btn-primary btn-sm" onClick={()=>onOpen(t)}>Profile <I.chev /></button>
                   </div>
-                </td>
+                </td>}
               </tr>
             ))}
           </tbody>
