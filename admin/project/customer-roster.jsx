@@ -95,6 +95,25 @@ function CustRoster({ onQuick, onOpen }){
   // When the user has filtered themselves into an empty result, find the
   // single filter whose removal would unblock the most rows. Cheap because
   // we only compute it when the table is empty.
+  // URL hash sync. Read once on mount so a shared link hydrates the table;
+  // write on every state change so the URL always reflects what the user is
+  // looking at and they can copy-paste at any moment.
+  const hydratedRef = React.useRef(false);
+  React.useEffect(() => {
+    const decoded = decodeRosterState(window.location.hash, FACETS, SORT_DEFS);
+    if (decoded.view && decoded.view !== "customer-roster"){ hydratedRef.current = true; return; }
+    if (decoded.tab) setStatusTab(decoded.tab);
+    if (decoded.search) setSearch(decoded.search);
+    if (decoded.filters?.length) setFilters(decoded.filters);
+    if (decoded.sorts) setSorts(decoded.sorts);
+    hydratedRef.current = true;
+  }, []);
+  React.useEffect(() => {
+    if (!hydratedRef.current) return;
+    const h = encodeRosterState({view:"customer-roster", tab:statusTab, search, filters, sorts});
+    if (h !== window.location.hash) window.history.replaceState(null, "", h);
+  }, [statusTab, search, filters, sorts]);
+
   const suggestion = React.useMemo(() => {
     if (sorted.length > 0) return null;
     const candidates = [];

@@ -347,9 +347,67 @@ function SortHeader({ id, label, sorts, onSort, align }){
   );
 }
 
+// URL state ─────────────────────────────────────────────────────────────────
+// Encode a roster's filter+sort+tab+search as a URL hash so an admin can
+// bookmark a query and share it with the team. Functions live on the page,
+// so we reconstruct filter/sort objects by looking up the static defs (FACETS
+// for filters, SORT_DEFS for sorts) on decode -- only ids and primitive
+// values cross the wire.
+
+function encodeRosterState({ view, tab, search, filters, sorts }){
+  const p = new URLSearchParams();
+  p.set("view", view);
+  if (tab && tab !== "All") p.set("tab", tab);
+  if (search) p.set("q", search);
+  for (const f of filters){
+    if (f.kind === "set" && f.value?.length){
+      p.set(`f.${f.id}`, f.value.join(","));
+    } else if (f.kind === "range" && f.value && (f.value.min!=null || f.value.max!=null)){
+      p.set(`f.${f.id}`, `${f.value.min ?? ""}:${f.value.max ?? ""}`);
+    } else if (f.kind === "dateRange" && f.value && (f.value.from || f.value.to)){
+      p.set(`f.${f.id}`, `${f.value.from || ""}:${f.value.to || ""}`);
+    }
+  }
+  if (sorts.length) p.set("s", sorts.map(s => `${s.id}:${s.dir}`).join(","));
+  return "#" + p.toString();
+}
+
+function decodeRosterState(hash, FACETS, SORT_DEFS){
+  const p = new URLSearchParams((hash || "").replace(/^#/, ""));
+  const view = p.get("view") || null;
+  const tab = p.get("tab") || "All";
+  const search = p.get("q") || "";
+  const filters = [];
+  for (const [k,v] of p.entries()){
+    if (!k.startsWith("f.")) continue;
+    const id = k.slice(2);
+    const def = (FACETS || []).find(f => f.id === id);
+    if (!def) continue;
+    if (def.kind === "set"){
+      filters.push({...def, value: v.split(",").filter(Boolean)});
+    } else if (def.kind === "range"){
+      const [min,max] = v.split(":");
+      filters.push({...def, value: {min: min===""?undefined:Number(min), max: max===""?undefined:Number(max)}});
+    } else if (def.kind === "dateRange"){
+      const [from,to] = v.split(":");
+      filters.push({...def, value: {from: from || undefined, to: to || undefined}});
+    }
+  }
+  const sortStr = p.get("s") || "";
+  const sorts = sortStr ? sortStr.split(",").map(part => {
+    const [id, dir] = part.split(":");
+    const def = (SORT_DEFS || {})[id];
+    if (!def) return null;
+    return {id, ...def, dir: dir === "desc" ? "desc" : "asc"};
+  }).filter(Boolean) : null;
+  return { view, tab, search, filters, sorts };
+}
+
 window.FilterBarStyles = FilterBarStyles;
 window.applyFilters = applyFilters;
 window.applySort = applySort;
 window.FacetChip = FacetChip;
 window.AddFacetMenu = AddFacetMenu;
 window.SortHeader = SortHeader;
+window.encodeRosterState = encodeRosterState;
+window.decodeRosterState = decodeRosterState;

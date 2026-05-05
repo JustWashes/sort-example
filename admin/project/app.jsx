@@ -8,7 +8,13 @@ const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
 
 function App(){
   const [tweaks, setTweak] = useTweaks(TWEAK_DEFAULTS);
-  const [view, setView] = React.useState(tweaks.view || "customer-roster"); // technician-roster, technician-profile, customer-roster, customer-profile
+  // Initial view honors a `view=` param in the URL hash so a shared link
+  // lands on the right roster instead of the prototype's default.
+  const initialView = (() => {
+    const hashView = new URLSearchParams((window.location.hash||"").replace(/^#/, "")).get("view");
+    return hashView || tweaks.view || "customer-roster";
+  })();
+  const [view, setView] = React.useState(initialView); // technician-roster, technician-profile, customer-roster, customer-profile
   const [activeTech, setActiveTech] = React.useState(TECHS[0]);
   const [activeCust, setActiveCust] = React.useState(CUSTOMERS[0]);
   const [quick, setQuick] = React.useState(null); // {kind,entity}

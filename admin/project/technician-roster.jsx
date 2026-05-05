@@ -117,6 +117,22 @@ function TechRoster({ onQuick, onOpen }){
   const filtered = applyFilters(segFiltered, filters, search, SEARCH_FIELDS);
   const techs = applySort(filtered, sorts);
 
+  const hydratedRef = React.useRef(false);
+  React.useEffect(() => {
+    const decoded = decodeRosterState(window.location.hash, FACETS, SORT_DEFS);
+    if (decoded.view && decoded.view !== "technician-roster"){ hydratedRef.current = true; return; }
+    if (decoded.tab && decoded.tab !== "All") setFilter(decoded.tab);
+    if (decoded.search) setSearch(decoded.search);
+    if (decoded.filters?.length) setFilters(decoded.filters);
+    if (decoded.sorts) setSorts(decoded.sorts);
+    hydratedRef.current = true;
+  }, []);
+  React.useEffect(() => {
+    if (!hydratedRef.current) return;
+    const h = encodeRosterState({view:"technician-roster", tab:filter, search, filters, sorts});
+    if (h !== window.location.hash) window.history.replaceState(null, "", h);
+  }, [filter, search, filters, sorts]);
+
   const suggestion = React.useMemo(() => {
     if (techs.length > 0) return null;
     const candidates = [];
