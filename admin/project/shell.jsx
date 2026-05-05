@@ -30,7 +30,7 @@ const ShellStyles = `
 .subbar a{color:#5E9DFF}
 .subbar .right-cap{margin-left:auto;color:#fff;letter-spacing:.18em;font-size:11.5px;font-weight:700}
 
-.page{padding:24px 28px 80px;max-width:1320px;margin:0 auto}
+.page{padding:24px 28px 80px;max-width:1600px;margin:0 auto}
 .crumb{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;margin-bottom:14px}
 .crumb:hover{color:var(--ink-2)}
 `;
