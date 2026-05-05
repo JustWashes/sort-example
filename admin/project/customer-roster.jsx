@@ -36,20 +36,25 @@ function CustRoster({ onQuick, onOpen }){
   }, []);
 
   const FACETS = [
-    {id:"status",label:"Status",kind:"set",get:r=>r.status,options:["Active","Suspended","Inactive"]},
-    {id:"planType",label:"Plan type",kind:"set",get:r=>planTypesOf(r.plan),options:PLAN_TYPE_OPTIONS},
-    {id:"vehicleClass",label:"Vehicle class",kind:"set",get:r=>vehicleClassOf(r.plan),options:["Sedan","Large SUV","Both","None"]},
-    {id:"cadence",label:"Cadence",kind:"set",get:r=>r.plan==="No Plan"?"No plan":r.plan.includes("Monthly")&&!r.plan.includes("Bi-")?"Monthly":r.plan.includes("Bi-Monthly")?"Bi-monthly":r.plan.includes("Quarterly")?"Quarterly":"Other",options:["No plan","Quarterly","Bi-monthly","Monthly"]},
-    {id:"zip",label:"ZIP",kind:"set",get:r=>r.zip,options:[...new Set(CUSTOMERS.map(c=>c.zip))].sort()},
-    {id:"city",label:"City",kind:"set",get:r=>r.city,options:[...new Set(CUSTOMERS.map(c=>c.city))].sort()},
-    {id:"bookings",label:"Bookings",kind:"range",get:r=>r.bookings,minHint:"0",maxHint:"100"},
-    {id:"credits",label:"Credits",kind:"range",get:r=>r.credits,minHint:"0",maxHint:"20"},
-    {id:"hasCredits",label:"Has credits",kind:"set",get:r=>r.credits>0?"Yes":"No",options:["Yes","No"]},
-    {id:"hasDisputes",label:"Has disputes",kind:"set",get:r=>(r.disputesLog?.length||r.disputes||0)>0?"Yes":"No",options:["Yes","No"]},
-    {id:"lifetime",label:"Lifetime spend",kind:"range",get:r=>r.lifetime,minHint:"$0",maxHint:"$10k"},
-    {id:"daysSinceBooking",label:"Days since last booking",kind:"range",get:r=>daysSinceLastBooking(r),minHint:"0",maxHint:"365"},
-    {id:"customerSince",label:"Joined date",kind:"dateRange",get:r=>r.customerSince},
-    {id:"nextRenewalDate",label:"Renewal date",kind:"dateRange",get:r=>r.nextRenewal==="—"?null:r.nextRenewal},
+    // Subscription
+    {group:"Subscription",id:"planType",label:"Plan type",kind:"set",get:r=>planTypesOf(r.plan),options:PLAN_TYPE_OPTIONS},
+    {group:"Subscription",id:"vehicleClass",label:"Vehicle class",kind:"set",get:r=>vehicleClassOf(r.plan),options:["Sedan","Large SUV","Both","None"]},
+    {group:"Subscription",id:"cadence",label:"Cadence",kind:"set",get:r=>r.plan==="No Plan"?"No plan":r.plan.includes("Monthly")&&!r.plan.includes("Bi-")?"Monthly":r.plan.includes("Bi-Monthly")?"Bi-monthly":r.plan.includes("Quarterly")?"Quarterly":"Other",options:["No plan","Quarterly","Bi-monthly","Monthly"]},
+    {group:"Subscription",id:"hasCredits",label:"Has credits",kind:"set",get:r=>r.credits>0?"Yes":"No",options:["Yes","No"]},
+    // Status & activity
+    {group:"Status & activity",id:"status",label:"Status",kind:"set",get:r=>r.status,options:["Active","Suspended","Inactive"]},
+    {group:"Status & activity",id:"hasDisputes",label:"Has disputes",kind:"set",get:r=>(r.disputesLog?.length||r.disputes||0)>0?"Yes":"No",options:["Yes","No"]},
+    {group:"Status & activity",id:"daysSinceBooking",label:"Days since last booking",kind:"range",get:r=>daysSinceLastBooking(r),minHint:"0",maxHint:"365"},
+    {group:"Status & activity",id:"bookings",label:"Bookings",kind:"range",get:r=>r.bookings,minHint:"0",maxHint:"100"},
+    // Money
+    {group:"Money",id:"lifetime",label:"Lifetime spend",kind:"range",get:r=>r.lifetime,minHint:"$0",maxHint:"$10k"},
+    {group:"Money",id:"credits",label:"Credits",kind:"range",get:r=>r.credits,minHint:"0",maxHint:"20"},
+    // Geography
+    {group:"Geography",id:"zip",label:"ZIP",kind:"set",get:r=>r.zip,options:[...new Set(CUSTOMERS.map(c=>c.zip))].sort()},
+    {group:"Geography",id:"city",label:"City",kind:"set",get:r=>r.city,options:[...new Set(CUSTOMERS.map(c=>c.city))].sort()},
+    // Time
+    {group:"Time",id:"customerSince",label:"Joined date",kind:"dateRange",get:r=>r.customerSince},
+    {group:"Time",id:"nextRenewalDate",label:"Renewal date",kind:"dateRange",get:r=>r.nextRenewal==="—"?null:r.nextRenewal},
   ];
 
   const SORT_DEFS = {

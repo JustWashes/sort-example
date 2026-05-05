@@ -54,16 +54,20 @@ function TechRoster({ onQuick, onOpen }){
   const [sorts, setSorts] = React.useState([{id:"joined", get:r=>r.joined, type:"date", dir:"desc", label:"Joined"}]);
 
   const FACETS = [
-    {id:"status",label:"Status",kind:"set",get:r=>r.status,options:["Active","Pending","Inactive"]},
-    {id:"type",label:"Type",kind:"set",get:r=>r.type,options:["Certified","Independent"]},
-    {id:"bgCheck",label:"BG check",kind:"set",get:r=>r.bgCheck,options:["Confirmed","Incomplete"]},
-    {id:"tier",label:"Pay tier",kind:"set",get:r=>r.tier,options:[...new Set(TECHS.map(t=>t.tier))]},
-    {id:"baseZip",label:"Base ZIP",kind:"set",get:r=>r.baseZip,options:[...new Set(TECHS.map(t=>t.baseZip))].sort()},
-    {id:"onboarding",label:"Onboarding %",kind:"range",get:r=>r.onboarding,minHint:"0",maxHint:"100"},
-    {id:"monthlyJobs",label:"Monthly jobs",kind:"range",get:r=>r.monthlyJobs,minHint:"0",maxHint:"50"},
-    {id:"lifetimeJobs",label:"Lifetime jobs",kind:"range",get:r=>r.lifetimeJobs,minHint:"0",maxHint:"500"},
-    {id:"rating",label:"Rating",kind:"range",get:r=>r.rating,minHint:"0",maxHint:"5"},
-    {id:"joined",label:"Joined date",kind:"dateRange",get:r=>r.joined},
+    // Status & onboarding
+    {group:"Status & onboarding",id:"status",label:"Status",kind:"set",get:r=>r.status,options:["Active","Pending","Inactive"]},
+    {group:"Status & onboarding",id:"type",label:"Type",kind:"set",get:r=>r.type,options:["Certified","Independent"]},
+    {group:"Status & onboarding",id:"bgCheck",label:"BG check",kind:"set",get:r=>r.bgCheck,options:["Confirmed","Incomplete"]},
+    {group:"Status & onboarding",id:"onboarding",label:"Onboarding %",kind:"range",get:r=>r.onboarding,minHint:"0",maxHint:"100"},
+    // Performance
+    {group:"Performance",id:"rating",label:"Rating",kind:"range",get:r=>r.rating,minHint:"0",maxHint:"5"},
+    {group:"Performance",id:"monthlyJobs",label:"Monthly jobs",kind:"range",get:r=>r.monthlyJobs,minHint:"0",maxHint:"50"},
+    {group:"Performance",id:"lifetimeJobs",label:"Lifetime jobs",kind:"range",get:r=>r.lifetimeJobs,minHint:"0",maxHint:"500"},
+    // Pay & geography
+    {group:"Pay & geography",id:"tier",label:"Pay tier",kind:"set",get:r=>r.tier,options:[...new Set(TECHS.map(t=>t.tier))]},
+    {group:"Pay & geography",id:"baseZip",label:"Base ZIP",kind:"set",get:r=>r.baseZip,options:[...new Set(TECHS.map(t=>t.baseZip))].sort()},
+    // Time
+    {group:"Time",id:"joined",label:"Joined date",kind:"dateRange",get:r=>r.joined},
   ];
 
   const SORT_DEFS = {

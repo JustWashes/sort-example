@@ -269,25 +269,42 @@ function FacetChip({ facet, rows, onUpdate, onRemove }){
   );
 }
 
+// Each facet may declare a `group` so the Add filter menu can section them
+// instead of presenting one flat ten-item list. Facets without a group
+// fall under "Other".
 function AddFacetMenu({ available, onAdd }){
   const [open, setOpen] = React.useState(false);
   const [q, setQ] = React.useState("");
   const opts = available.filter(f => f.label.toLowerCase().includes(q.toLowerCase()));
+  // Preserve the group order facets were declared in (FACETS array order),
+  // and also preserve facet order within each group.
+  const groups = [];
+  const byGroup = new Map();
+  for (const f of opts){
+    const g = f.group || "Other";
+    if (!byGroup.has(g)){ byGroup.set(g, []); groups.push(g); }
+    byGroup.get(g).push(f);
+  }
   return (
     <div style={{position:"relative"}}>
       <div className="facet-add" onClick={()=>setOpen(o=>!o)}><I.plus /> Add filter</div>
       {open && (
         <>
           <div style={{position:"fixed",inset:0,zIndex:49}} onClick={()=>setOpen(false)} />
-          <div className="pop" style={{minWidth:220}}>
+          <div className="pop" style={{minWidth:240}}>
             <div className="pop-search"><I.search /><input autoFocus placeholder="Find filter…" value={q} onChange={e=>setQ(e.target.value)} /></div>
             <div className="pop-list">
-              {opts.map(f => (
-                <div key={f.id} className="pop-item" onClick={()=>{onAdd(f); setOpen(false);}}>
-                  <span style={{color:"var(--muted)"}}>{f.kind==="set"?<I.check />:f.kind==="range"?<I.zap />:<I.cal />}</span>
-                  <span>{f.label}</span>
-                  <span className="count" style={{color:"var(--muted)",fontSize:10,fontWeight:500}}>{f.kind}</span>
-                </div>
+              {groups.map(g => (
+                <React.Fragment key={g}>
+                  <div style={{padding:"8px 8px 4px",fontSize:10,fontWeight:700,color:"var(--muted)",letterSpacing:".08em",textTransform:"uppercase"}}>{g}</div>
+                  {byGroup.get(g).map(f => (
+                    <div key={f.id} className="pop-item" onClick={()=>{onAdd(f); setOpen(false);}}>
+                      <span style={{color:"var(--muted)"}}>{f.kind==="set"?<I.check />:f.kind==="range"?<I.zap />:<I.cal />}</span>
+                      <span>{f.label}</span>
+                      <span className="count" style={{color:"var(--muted)",fontSize:10,fontWeight:500}}>{f.kind==="dateRange"?"date":f.kind}</span>
+                    </div>
+                  ))}
+                </React.Fragment>
               ))}
               {!opts.length && <div className="muted" style={{padding:8,fontSize:12}}>No filters match</div>}
             </div>
