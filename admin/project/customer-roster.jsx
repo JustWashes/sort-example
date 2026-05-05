@@ -83,6 +83,13 @@ function CustRoster({ onQuick, onOpen }){
 
   const removeSort = (id) => setSorts(prev => prev.filter(s => s.id !== id));
   const flipSort = (id) => setSorts(prev => prev.map(s => s.id===id ? {...s, dir: s.dir==="asc"?"desc":"asc"} : s));
+  // Move a sort key to position 1 so the user can re-rank without rebuilding
+  // the whole stack from scratch.
+  const promoteSort = (id) => setSorts(prev => {
+    const i = prev.findIndex(s => s.id === id);
+    if (i <= 0) return prev;
+    return [prev[i], ...prev.slice(0,i), ...prev.slice(i+1)];
+  });
 
   return (
     <>
@@ -121,15 +128,15 @@ function CustRoster({ onQuick, onOpen }){
               <div className="sort-strip">
                 <span className="label">Sorted by</span>
                 {sorts.map((s,i) => (
-                  <div key={s.id} className="sort-chip">
+                  <div key={s.id} className={"sort-chip"+(i===0?" primary":"")} onClick={()=>promoteSort(s.id)} title={i===0?"Primary sort":"Click to make primary"} style={{cursor:i===0?"default":"pointer"}}>
                     <span className="ord">{i+1}</span>
                     <span>{s.label}</span>
-                    <span className="arr" onClick={()=>flipSort(s.id)} style={{cursor:"pointer"}}>{s.dir==="asc"?"▲":"▼"}</span>
-                    <span className="x" onClick={()=>removeSort(s.id)} style={{cursor:"pointer"}}><I.close /></span>
+                    <span className="arr" onClick={e=>{e.stopPropagation();flipSort(s.id);}} style={{cursor:"pointer"}} title={`Flip to ${s.dir==="asc"?"desc":"asc"}`}>{s.dir==="asc"?"▲":"▼"}</span>
+                    <span className="x" onClick={e=>{e.stopPropagation();removeSort(s.id);}} style={{cursor:"pointer"}} title="Remove"><I.close /></span>
                   </div>
                 ))}
                 <button className="btn btn-ghost btn-xs" onClick={()=>setSorts([])} style={{color:"var(--muted)"}}>Clear sort</button>
-                <span style={{fontSize:11,color:"var(--muted)",marginLeft:6}}>Click any header to chain · click again to flip · × to remove</span>
+                <span style={{fontSize:11,color:"var(--muted)",marginLeft:6}}>Click header to chain · click chip to make primary · ▲▼ flip · × remove</span>
               </div>
             </div>
           )}

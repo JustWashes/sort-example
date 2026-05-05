@@ -46,7 +46,10 @@ const FilterBarStyles = `
 .sort-strip{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .sort-strip .label{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.07em;text-transform:uppercase;margin-right:2px}
 .sort-chip{display:inline-flex;align-items:center;gap:5px;height:26px;padding:0 4px 0 8px;border-radius:7px;background:#fff;border:1px solid var(--line);font-size:11.5px;font-weight:700;color:var(--ink-2);cursor:pointer}
-.sort-chip:hover{border-color:#C5CFE0}
+.sort-chip:hover{border-color:#C5CFE0;background:#F8FAFD}
+.sort-chip.primary{background:var(--primary-50);border-color:#cfdcfb;color:var(--primary)}
+.sort-chip.primary:hover{background:var(--primary-50)}
+.sort-chip.primary .ord{background:var(--primary);color:#fff}
 .sort-chip .ord{width:14px;height:14px;border-radius:99px;background:#EEF1F6;color:var(--ink-2);font-size:9px;font-weight:800;display:inline-flex;align-items:center;justify-content:center}
 .sort-chip .arr{font-size:11px}
 .sort-chip .x{width:18px;height:18px;border-radius:99px;display:inline-flex;align-items:center;justify-content:center;color:var(--muted)}
