@@ -3,6 +3,17 @@ const CRosterStyles = `
 .kpi-row5{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:18px}
 .results-meta{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-top:1px solid var(--line-2);background:#FAFBFD;font-size:12px;color:var(--muted)}
 .results-meta b{color:var(--ink)}
+
+/* Hero answer card. Surfaces when filters narrow the table to a small set
+   so admins doing "find me THE X" queries don't have to scroll to row 1. */
+.answer-card{display:flex;align-items:center;gap:14px;padding:14px 18px;border-bottom:1px solid var(--line-2);background:linear-gradient(90deg,#EAF1FE,#F8FAFD)}
+.answer-card .ac-eyebrow{font-size:10.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--primary)}
+.answer-card .ac-name{font-size:16px;font-weight:700;letter-spacing:-.01em;line-height:1.15;margin-top:2px}
+.answer-card .ac-meta{font-size:12.5px;color:var(--muted);margin-top:2px}
+.answer-card .ac-stats{display:flex;gap:14px;margin-left:auto;align-items:center}
+.answer-card .ac-stat{display:flex;flex-direction:column;align-items:flex-end}
+.answer-card .ac-stat .v{font-size:14px;font-weight:700;color:var(--ink);line-height:1.1}
+.answer-card .ac-stat .l{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-top:2px}
 `;
 
 // Plan tier ranking (no plan < quarterly < bi-monthly < monthly)
@@ -250,6 +261,23 @@ function CustRoster({ onQuick, onOpen }){
             </div>
           )}
         </div>
+
+        {sorted.length > 0 && sorted.length <= 5 && (filters.length > 0 || statusTab !== "All" || search.trim()) && (
+          <div className="answer-card">
+            <div className="avatar avatar-md" style={{background:`linear-gradient(135deg,${sorted[0].color},${shade(sorted[0].color,-22)})`}}>{sorted[0].initials}</div>
+            <div style={{minWidth:0}}>
+              <div className="ac-eyebrow">{sorted.length === 1 ? "Your match" : `Top of ${sorted.length} matches`}{sorts.length ? ` · ranked by ${sorts[0].label}` : ""}</div>
+              <div className="ac-name">{sorted[0].name}</div>
+              <div className="ac-meta">{sorted[0].plan === "No Plan" ? "No plan" : sorted[0].plan} · joined {sorted[0].customerSince}</div>
+            </div>
+            <div className="ac-stats">
+              <div className="ac-stat"><span className="v">${(sorted[0].lifetime||0).toLocaleString()}</span><span className="l">LTV</span></div>
+              <div className="ac-stat"><span className="v">{sorted[0].bookings}</span><span className="l">Bookings</span></div>
+              <div className="ac-stat"><span className="v">{sorted[0].credits}</span><span className="l">Credits</span></div>
+              <button className="btn btn-primary btn-sm" onClick={()=>onOpen(sorted[0])}>Open profile <I.chev /></button>
+            </div>
+          </div>
+        )}
 
         <table className="tbl">
           <thead><tr>

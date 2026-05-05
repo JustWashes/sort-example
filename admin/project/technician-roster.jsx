@@ -44,6 +44,8 @@ const RosterStyles = `
 .tbl .actcell{display:flex;gap:6px;justify-content:flex-end;align-items:center}
 .tbl .pay-tier{font-size:11px;font-weight:700;letter-spacing:.05em}
 .tbl .pay-tier .next{display:block;font-size:10px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-top:1px}
+
+/* Hero answer card -- shares CRosterStyles' .answer-card class for layout. */
 `;
 
 function TechRoster({ onQuick, onOpen }){
@@ -260,6 +262,23 @@ function TechRoster({ onQuick, onOpen }){
             </div>
           )}
         </div>
+
+        {techs.length > 0 && techs.length <= 5 && (filters.length > 0 || filter !== "All" || search.trim()) && (
+          <div className="answer-card">
+            <div className="avatar avatar-md" style={{background:`linear-gradient(135deg,${techs[0].color},${shade(techs[0].color,-22)})`}}>{techs[0].initials}</div>
+            <div style={{minWidth:0}}>
+              <div className="ac-eyebrow">{techs.length === 1 ? "Your match" : `Top of ${techs.length} matches`}{sorts.length ? ` · ranked by ${sorts[0].label}` : ""}</div>
+              <div className="ac-name">{techs[0].name} <span style={{fontWeight:500,color:"var(--muted)",fontSize:13}}>· {techs[0].handle}</span></div>
+              <div className="ac-meta">{techs[0].type} · {techs[0].tier} · joined {techs[0].joined}</div>
+            </div>
+            <div className="ac-stats">
+              <div className="ac-stat"><span className="v">{techs[0].rating ? techs[0].rating.toFixed(1) : "—"}</span><span className="l">Rating</span></div>
+              <div className="ac-stat"><span className="v">{techs[0].monthlyJobs}</span><span className="l">Monthly</span></div>
+              <div className="ac-stat"><span className="v">{techs[0].lifetimeJobs}</span><span className="l">Lifetime</span></div>
+              <button className="btn btn-primary btn-sm" onClick={()=>onOpen(techs[0])}>Open profile <I.chev /></button>
+            </div>
+          </div>
+        )}
 
         <table className="tbl">
           <thead>
