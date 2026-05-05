@@ -25,6 +25,7 @@ function CustRoster({ onQuick, onOpen }){
   const [filters, setFilters] = React.useState([]);
   const [sorts, setSorts] = React.useState([{id:"customerSince", get:r=>r.customerSince, type:"date", dir:"asc", label:"Joined"}]);
   const [statusTab, setStatusTab] = React.useState("All");
+  const [copied, setCopied] = React.useState(false);
 
   // Build the Plan type options dynamically from real customer data so we
   // never list a product nobody holds. The full taxonomy is Vehicle ×
@@ -213,6 +214,10 @@ function CustRoster({ onQuick, onOpen }){
                 <button key={t} className={statusTab===t?"on":""} onClick={()=>setStatusTab(t)}>{t}</button>
               ))}
             </div>
+            <button className="btn btn-ghost btn-sm" onClick={async()=>{
+              await navigator.clipboard.writeText(window.location.href);
+              setCopied(true); setTimeout(()=>setCopied(false), 1500);
+            }} title="Copy a link that reproduces this exact view"><I.copy /> {copied ? "Copied!" : "Copy link"}</button>
             <button className="btn btn-ghost btn-sm"><I.download /> Export ({sorted.length})</button>
           </div>
 

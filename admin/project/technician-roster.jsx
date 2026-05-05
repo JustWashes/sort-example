@@ -51,6 +51,7 @@ function TechRoster({ onQuick, onOpen }){
   const [tab, setTab] = React.useState("Roster");
   const [search, setSearch] = React.useState("");
   const [filters, setFilters] = React.useState([]);
+  const [copied, setCopied] = React.useState(false);
   const [sorts, setSorts] = React.useState([{id:"joined", get:r=>r.joined, type:"date", dir:"desc", label:"Joined"}]);
 
   const FACETS = [
@@ -222,6 +223,10 @@ function TechRoster({ onQuick, onOpen }){
                 <button key={f} className={filter===f?"on":""} onClick={()=>setFilter(f)}>{f}</button>
               ))}
             </div>
+            <button className="btn btn-ghost btn-sm" onClick={async()=>{
+              await navigator.clipboard.writeText(window.location.href);
+              setCopied(true); setTimeout(()=>setCopied(false), 1500);
+            }} title="Copy a link that reproduces this exact view"><I.copy /> {copied ? "Copied!" : "Copy link"}</button>
             <button className="btn btn-ghost btn-sm"><I.download /> Export ({techs.length})</button>
             <button className="btn btn-ghost btn-sm"><I.car /> Show Vehicles</button>
           </div>
