@@ -23,12 +23,17 @@ function App(){
   React.useEffect(()=>{ setView(tweaks.view); }, [tweaks.view]);
 
   const isTech = view.startsWith("technician");
-  const sub = view==="technician-roster" ? "TECHNICIAN ROSTER" : view==="technician-profile" ? "TECHNICIAN PROFILE" : view==="customer-roster" ? "CUSTOMER MANAGEMENT" : "CUSTOMER PROFILE";
+  const sub = view==="technician-roster" ? "TECHNICIAN ROSTER"
+    : view==="technician-profile" ? "TECHNICIAN PROFILE"
+    : view==="customer-roster" ? "CUSTOMER MANAGEMENT"
+    : view==="customer-profile" ? "CUSTOMER PROFILE"
+    : view==="components-gallery" ? "COMPONENTS GALLERY"
+    : "";
 
   return (
     <>
-      <style>{`${PrimStyles}\n${ShellStyles}\n${RosterStyles}\n${TPStyles}\n${CRosterStyles}\n${CPStyles}\n${QGStyles}\n${PPStyles}\n${FilterBarStyles}`}</style>
-      <Shell activeNav={isTech?"technicians":"customers"} subbarRight={sub}>
+      <style>{`${PrimStyles}\n${ShellStyles}\n${RosterStyles}\n${TPStyles}\n${CRosterStyles}\n${CPStyles}\n${QGStyles}\n${PPStyles}\n${FilterBarStyles}\n${GalleryStyles}`}</style>
+      <Shell activeNav={view==="components-gallery"?"":(isTech?"technicians":"customers")} subbarRight={sub}>
         {view==="technician-roster" && (
           <TechRoster
             onQuick={t => setQuick({kind:"tech",entity:t})}
@@ -51,6 +56,7 @@ function App(){
         {view==="customer-profile" && (
           <CustProfile cust={activeCust} onBack={() => { setView("customer-roster"); setTweak("view","customer-roster"); }} />
         )}
+        {view==="components-gallery" && <ComponentsGallery />}
       </Shell>
 
       {quick && (
@@ -80,6 +86,7 @@ function App(){
               {value:"technician-profile",label:"Technician profile (full)"},
               {value:"customer-roster",label:"Customer roster"},
               {value:"customer-profile",label:"Customer profile (full)"},
+              {value:"components-gallery",label:"Components gallery"},
             ]}
           />
           <TweakButton onClick={()=>setQuick({kind:"tech",entity:TECHS[0]})}>Open quick-glance · Tech</TweakButton>
