@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=1440" />
+<title>JustWashes — Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F4F6FB;
+    --panel:#FFFFFF;
+    --ink:#0F1A2E;
+    --ink-2:#334466;
+    --muted:#6B7A93;
+    --line:#E4E8F0;
+    --line-2:#EEF1F6;
+    --primary:#1F66E5;
+    --primary-700:#1853BD;
+    --primary-50:#EAF1FE;
+    --navy:#0B2147;
+    --navy-2:#091B3B;
+    --green:#15A66B;
+    --green-50:#E5F7EE;
+    --amber:#C97A0A;
+    --amber-50:#FCF1DE;
+    --red:#D4434C;
+    --red-50:#FCE7E9;
+    --violet:#6E46D6;
+    --violet-50:#ECE7FB;
+    --cyan:#0E8FB1;
+    --cyan-50:#E1F4F9;
+    --shadow-sm: 0 1px 2px rgba(15,26,46,0.04), 0 1px 1px rgba(15,26,46,0.03);
+    --shadow-md: 0 4px 16px rgba(15,26,46,0.06), 0 2px 4px rgba(15,26,46,0.04);
+    --shadow-lg: 0 24px 60px rgba(15,26,46,0.18), 0 8px 16px rgba(15,26,46,0.10);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:"Inter",ui-sans-serif,system-ui,sans-serif;-webkit-font-smoothing:antialiased;font-feature-settings:"cv11","ss01","ss03";}
+  button{font-family:inherit}
+  a{color:inherit;text-decoration:none}
+  .mono{font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace}
+  ::selection{background:#cbe0ff}
+  /* Scrollbar */
+  ::-webkit-scrollbar{width:10px;height:10px}
+  ::-webkit-scrollbar-thumb{background:#dbe1ec;border-radius:8px;border:2px solid var(--bg)}
+  ::-webkit-scrollbar-thumb:hover{background:#c5cdd9}
+</style>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="data.jsx"></script>
+<script type="text/babel" src="primitives.jsx"></script>
+<script type="text/babel" src="filterbar.jsx"></script>
+<script type="text/babel" src="shell.jsx"></script>
+<script type="text/babel" src="quickglance.jsx"></script>
+<script type="text/babel" src="public-profile.jsx"></script>
+<script type="text/babel" src="technician-roster.jsx"></script>
+<script type="text/babel" src="technician-profile.jsx"></script>
+<script type="text/babel" src="customer-roster.jsx"></script>
+<script type="text/babel" src="customer-profile.jsx"></script>
+<script type="text/babel" src="app.jsx"></script>
+</body>
+</html>
