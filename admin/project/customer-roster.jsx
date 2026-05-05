@@ -44,8 +44,12 @@ function CustRoster({ onQuick, onOpen }){
     {id:"city",label:"City",kind:"set",get:r=>r.city,options:[...new Set(CUSTOMERS.map(c=>c.city))].sort()},
     {id:"bookings",label:"Bookings",kind:"range",get:r=>r.bookings,minHint:"0",maxHint:"100"},
     {id:"credits",label:"Credits",kind:"range",get:r=>r.credits,minHint:"0",maxHint:"20"},
+    {id:"hasCredits",label:"Has credits",kind:"set",get:r=>r.credits>0?"Yes":"No",options:["Yes","No"]},
+    {id:"hasDisputes",label:"Has disputes",kind:"set",get:r=>(r.disputesLog?.length||r.disputes||0)>0?"Yes":"No",options:["Yes","No"]},
     {id:"lifetime",label:"Lifetime spend",kind:"range",get:r=>r.lifetime,minHint:"$0",maxHint:"$10k"},
+    {id:"daysSinceBooking",label:"Days since last booking",kind:"range",get:r=>daysSinceLastBooking(r),minHint:"0",maxHint:"365"},
     {id:"customerSince",label:"Joined date",kind:"dateRange",get:r=>r.customerSince},
+    {id:"nextRenewalDate",label:"Renewal date",kind:"dateRange",get:r=>r.nextRenewal==="—"?null:r.nextRenewal},
   ];
 
   const SORT_DEFS = {
