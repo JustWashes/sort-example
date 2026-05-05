@@ -42,9 +42,10 @@ applied as an AND, so you can stack them freely.
 Empty chips are no-ops, so you can drop one in and configure it without
 freezing the table.
 
-**Multi-column sort** — click any sortable header to sort by it; **shift-click
-or `+`** on a header to add it as a secondary/tertiary sort. The "Sorted by"
-chip strip shows the active order; arrows flip direction, × removes a key.
+**Multi-column sort** — every header click chains. Click an inactive header
+to append it as the next sort key, click an active header to flip its
+direction, and use × on each chip (or the *Clear sort* button) to drop a
+key. The "Sorted by" strip shows the active order with numbered chips.
 
 The user's example use case ("earliest active subscriber") works end-to-end:
 click the *Active* tab, add filter *Plan tier ≠ No plan*, sort *Joined ▲* —

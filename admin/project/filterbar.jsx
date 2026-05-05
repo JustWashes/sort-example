@@ -274,20 +274,19 @@ function AddFacetMenu({ available, onAdd }){
   );
 }
 
-// Sort header — handles plain click (replace) vs shift-click (append)
+// Sort header — every click chains. Click an inactive header to append it as
+// the next sort key, click an active header to flip its direction, click ×
+// on the chip strip to remove it.
 function SortHeader({ id, label, sorts, onSort, align }){
   const idx = sorts.findIndex(s => s.id === id);
   const active = idx >= 0;
   const dir = active ? sorts[idx].dir : null;
-  const handle = (e) => {
-    // Treat Shift, Cmd (Mac), Ctrl, Alt all as "add to sort"
-    const additive = e.shiftKey || e.metaKey || e.ctrlKey || e.altKey;
-    onSort(id, additive);
-  };
-  const handlePlus = (e) => { e.stopPropagation(); onSort(id, true); };
+  const handle = () => onSort(id);
   const titleHint = active
-    ? "Click to flip · Shift/⌘-click to keep other sorts · × to remove"
-    : "Click to sort · Shift/⌘-click (or +) to add as a secondary sort";
+    ? "Click to flip direction · use × in sort strip to remove"
+    : sorts.length > 0
+      ? `Click to add as sort #${sorts.length+1}`
+      : "Click to sort";
   return (
     <th className={"sort"+(active?" active":"")} onClick={handle} title={titleHint} style={align==="right"?{textAlign:"right"}:undefined}>
       <span className="sort-label">
@@ -296,9 +295,6 @@ function SortHeader({ id, label, sorts, onSort, align }){
           {active ? (dir==="asc"?"▲":"▼") : "↕"}
           {sorts.length > 1 && active && <span className="ord">{idx+1}</span>}
         </span>
-        {!active && sorts.length > 0 && (
-          <span className="sort-add" onClick={handlePlus} title="Add as secondary sort">+</span>
-        )}
       </span>
     </th>
   );

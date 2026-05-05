@@ -79,23 +79,17 @@ function TechRoster({ onQuick, onOpen }){
     rating:{get:r=>r.rating||0,type:"num",label:"Rating"},
   };
 
-  const onSort = (id, additive) => {
+  // Plain click chains by default; see customer-roster for the full rationale.
+  const onSort = (id, _additive) => {
     setSorts(prev => {
       const def = SORT_DEFS[id];
       const idx = prev.findIndex(s=>s.id===id);
-      if (additive){
-        if (idx >= 0){
-          const next = [...prev];
-          next[idx] = {...next[idx], dir: next[idx].dir==="asc"?"desc":"asc"};
-          return next;
-        }
-        return [...prev, {id, ...def, dir:"asc"}];
-      } else {
-        if (idx >= 0 && prev.length === 1){
-          return [{id, ...def, dir: prev[idx].dir==="asc"?"desc":"asc"}];
-        }
-        return [{id, ...def, dir:"asc"}];
+      if (idx >= 0){
+        const next = [...prev];
+        next[idx] = {...next[idx], dir: next[idx].dir==="asc"?"desc":"asc"};
+        return next;
       }
+      return [...prev, {id, ...def, dir:"asc"}];
     });
   };
   const removeSort = (id) => setSorts(prev => prev.filter(s => s.id !== id));
@@ -165,7 +159,8 @@ function TechRoster({ onQuick, onOpen }){
                     <span className="x" onClick={()=>removeSort(s.id)} style={{cursor:"pointer"}}><I.close /></span>
                   </div>
                 ))}
-                <span style={{fontSize:11,color:"var(--muted)",marginLeft:6}}><kbd style={{padding:"1px 5px",border:"1px solid var(--line)",borderRadius:4,background:"#fff",fontFamily:"inherit",fontSize:10}}>Shift</kbd> + click header (or +) to add</span>
+                <button className="btn btn-ghost btn-xs" onClick={()=>setSorts([])} style={{color:"var(--muted)"}}>Clear sort</button>
+                <span style={{fontSize:11,color:"var(--muted)",marginLeft:6}}>Click any header to chain · click again to flip · × to remove</span>
               </div>
             </div>
           )}

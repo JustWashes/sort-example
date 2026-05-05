@@ -1,6 +1,6 @@
 // Top-level app. Routes between roster and profile, controls quick-glance + public profile modal.
 const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
-  "view":"technician-roster",
+  "view":"customer-roster",
   "heroStyle":"gradient",
   "density":"comfortable",
   "showPublicProfile":false
@@ -8,7 +8,7 @@ const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
 
 function App(){
   const [tweaks, setTweak] = useTweaks(TWEAK_DEFAULTS);
-  const [view, setView] = React.useState(tweaks.view || "technician-roster"); // technician-roster, technician-profile, customer-roster, customer-profile
+  const [view, setView] = React.useState(tweaks.view || "customer-roster"); // technician-roster, technician-profile, customer-roster, customer-profile
   const [activeTech, setActiveTech] = React.useState(TECHS[0]);
   const [activeCust, setActiveCust] = React.useState(CUSTOMERS[0]);
   const [quick, setQuick] = React.useState(null); // {kind,entity}

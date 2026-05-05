@@ -51,23 +51,20 @@ function CustRoster({ onQuick, onOpen }){
     zip:{get:r=>r.zip,type:"str",label:"ZIP"},
   };
 
-  const onSort = (id, additive) => {
+  // Plain click chains by default: clicking a new header appends it as a
+  // secondary sort, clicking an active header flips its direction. Removal
+  // is via the × on each chip in the sort strip. Shift / ⌘ / Ctrl is still
+  // accepted for consistency but no longer required to compose sorts.
+  const onSort = (id, _additive) => {
     setSorts(prev => {
       const def = SORT_DEFS[id];
       const idx = prev.findIndex(s=>s.id===id);
-      if (additive){
-        if (idx >= 0){
-          const next = [...prev];
-          next[idx] = {...next[idx], dir: next[idx].dir==="asc"?"desc":"asc"};
-          return next;
-        }
-        return [...prev, {id, ...def, dir:"asc"}];
-      } else {
-        if (idx >= 0 && prev.length === 1){
-          return [{id, ...def, dir: prev[idx].dir==="asc"?"desc":"asc"}];
-        }
-        return [{id, ...def, dir:"asc"}];
+      if (idx >= 0){
+        const next = [...prev];
+        next[idx] = {...next[idx], dir: next[idx].dir==="asc"?"desc":"asc"};
+        return next;
       }
+      return [...prev, {id, ...def, dir:"asc"}];
     });
   };
 
@@ -128,10 +125,11 @@ function CustRoster({ onQuick, onOpen }){
                     <span className="ord">{i+1}</span>
                     <span>{s.label}</span>
                     <span className="arr" onClick={()=>flipSort(s.id)} style={{cursor:"pointer"}}>{s.dir==="asc"?"▲":"▼"}</span>
-                    <span className="x" onClick={()=>removeSort(s.id)}><I.close /></span>
+                    <span className="x" onClick={()=>removeSort(s.id)} style={{cursor:"pointer"}}><I.close /></span>
                   </div>
                 ))}
-                <span style={{fontSize:11,color:"var(--muted)",marginLeft:6}}><kbd style={{padding:"1px 5px",border:"1px solid var(--line)",borderRadius:4,background:"#fff",fontFamily:"inherit",fontSize:10}}>Shift</kbd> + click header to add</span>
+                <button className="btn btn-ghost btn-xs" onClick={()=>setSorts([])} style={{color:"var(--muted)"}}>Clear sort</button>
+                <span style={{fontSize:11,color:"var(--muted)",marginLeft:6}}>Click any header to chain · click again to flip · × to remove</span>
               </div>
             </div>
           )}
