@@ -105,7 +105,15 @@ function applyFilters(rows, filters, search, searchFields){
   for (const f of filters){
     if (f.kind === "set"){
       if (!f.value || !f.value.length) continue;
-      out = out.filter(r => f.value.includes(f.get(r)));
+      out = out.filter(r => {
+        const v = f.get(r);
+        // Array-valued getters (e.g. a customer's set of plan products) match
+        // when ANY held value is in the user's selection. This is what makes
+        // "show me anyone with a Sedan Bi-monthly subscription" Just Work for
+        // customers who hold combo plans.
+        if (Array.isArray(v)) return v.some(x => f.value.includes(x));
+        return f.value.includes(v);
+      });
     } else if (f.kind === "range"){
       const {min, max} = (f.value || {});
       if (min == null && max == null) continue;
@@ -138,7 +146,13 @@ function SetPopover({ facet, rows, onChange, onClose }){
   const [draft, setDraft] = React.useState(facet.value || []);
   const counts = React.useMemo(() => {
     const m = {};
-    for (const r of rows){ const v = facet.get(r); if (v != null) m[v] = (m[v]||0)+1; }
+    for (const r of rows){
+      const v = facet.get(r);
+      if (v == null) continue;
+      // Array-valued getters tally each held value once per row.
+      if (Array.isArray(v)) for (const x of v) m[x] = (m[x]||0)+1;
+      else m[v] = (m[v]||0)+1;
+    }
     return m;
   }, [rows]);
   const opts = (facet.options || Object.keys(counts)).filter(o => o.toLowerCase().includes(q.toLowerCase()));
