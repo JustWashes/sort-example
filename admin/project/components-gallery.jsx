@@ -16,6 +16,37 @@ const GalleryStyles = `
 .gal-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
 .gal-grid > div{padding:16px;border:1px dashed var(--line);border-radius:10px;background:#FAFBFD}
 .gal-label{font-size:10.5px;font-weight:800;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px}
+
+/* Library landscape cards */
+.lib-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.lib-card{border:1px solid var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:10px;background:#fff}
+.lib-card.headless{background:linear-gradient(180deg,#F8FAFD,#fff)}
+.lib-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.lib-head h3{margin:0;font-size:14px;font-weight:700;letter-spacing:-.005em}
+.lib-head h3 small{font-weight:500;color:var(--muted);font-size:11px;margin-left:4px}
+.lib-license{font-size:10px;font-weight:800;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;background:#EEF1F6;padding:2px 8px;border-radius:99px}
+.lib-license.mit{background:var(--green-50);color:#0F7A4E}
+.lib-license.commercial{background:#FCF1DE;color:#8A5407}
+.lib-tag{margin:0;font-size:12.5px;color:var(--ink-2);line-height:1.5}
+.lib-cols{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.lib-h{font-size:10.5px;font-weight:800;color:var(--muted);letter-spacing:.07em;text-transform:uppercase;margin-bottom:6px}
+.lib-cols ul{margin:0;padding-left:16px;font-size:12px;line-height:1.55;color:var(--ink-2)}
+.lib-cols ul li{margin-bottom:2px}
+.lib-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:8px;border-top:1px solid var(--line-2)}
+.lib-foot a{color:var(--primary);font-weight:600;font-size:12.5px;display:inline-flex;align-items:center;gap:4px}
+.lib-foot a:hover{text-decoration:underline}
+.lib-foot code{font-family:"JetBrains Mono",monospace;font-size:11px;background:#F4F6FB;padding:3px 8px;border-radius:6px;color:var(--ink-2)}
+
+/* Feature matrix */
+.matrix-wrap{overflow-x:auto;margin:0 -20px}
+.matrix{width:100%;border-collapse:collapse;font-size:12px}
+.matrix th, .matrix td{padding:8px 10px;border-bottom:1px solid var(--line-2);text-align:left;vertical-align:middle}
+.matrix thead th{font-size:10.5px;font-weight:700;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;background:#FAFBFD}
+.matrix tbody th{font-weight:600;color:var(--ink);text-align:left;background:#FAFBFD;width:240px}
+.matrix .yes{color:#0F7A4E;font-weight:700}
+.matrix .partial{color:#8A5407;font-weight:700}
+.matrix .no{color:var(--muted)}
+.matrix td.cell{text-align:center}
 `;
 
 // Placeholder dataset — abstract, deliberately not domain-specific so the
@@ -295,6 +326,240 @@ function NarrowRankTagExhibit(){
   );
 }
 
+// Library landscape ------------------------------------------------------
+
+function LibraryCard({ name, version, license, licenseClass, tagline, headless, covers, gaps, demoUrl, install }){
+  return (
+    <div className={"lib-card"+(headless?" headless":"")}>
+      <div className="lib-head">
+        <h3>{name}<small>{version}</small></h3>
+        <span className={"lib-license "+(licenseClass||"mit")}>{license}</span>
+      </div>
+      <p className="lib-tag">{tagline}</p>
+      <div className="lib-cols">
+        <div>
+          <div className="lib-h">Covers</div>
+          <ul>{covers.map((c,i) => <li key={i}>{c}</li>)}</ul>
+        </div>
+        <div>
+          <div className="lib-h">Gaps for our spec</div>
+          <ul>{gaps.map((g,i) => <li key={i}>{g}</li>)}</ul>
+        </div>
+      </div>
+      <div className="lib-foot">
+        <a href={demoUrl} target="_blank" rel="noreferrer">View live demo <I.external /></a>
+        <code>{install}</code>
+      </div>
+    </div>
+  );
+}
+
+const LIBRARIES = [
+  {
+    name: "TanStack Table", version: "v8", license: "MIT", licenseClass:"mit",
+    headless: true,
+    tagline: "Headless toolkit. You own all rendering; the library owns sort, filter, column visibility, pagination, grouping state.",
+    covers: [
+      "Multi-column sort (shift-click default)",
+      "Column visibility, ordering, pinning",
+      "Global + per-column filter primitives",
+      "Faceted unique-values + min/max helpers",
+      "Server-side or client-side modes",
+    ],
+    gaps: [
+      "No chip / popover UI — bring your own",
+      "No URL state sync — wire it yourself",
+      "No preset views — your component layer",
+      "Empty-state suggestions — custom",
+    ],
+    demoUrl: "https://tanstack.com/table/v8/docs/framework/react/examples/filters-faceted",
+    install: "npm i @tanstack/react-table",
+  },
+  {
+    name: "AG Grid Community", version: "v31+", license: "MIT", licenseClass:"mit",
+    tagline: "Full-featured grid with built-in filter rows, multi-sort, column tool panel, virtualized rows. Heavyweight default look.",
+    covers: [
+      "Multi-column sort (shift-click)",
+      "Built-in column filter rows + filter menus",
+      "Column visibility tool panel",
+      "Pagination + virtualization",
+      "CSV export built-in",
+    ],
+    gaps: [
+      "Chip-style facets need custom UI",
+      "URL state sync is custom",
+      "Preset views are custom",
+      "Default styling is dense / not your brand",
+      "Excel export, range select, master/detail are Enterprise (paid)",
+    ],
+    demoUrl: "https://www.ag-grid.com/example/",
+    install: "npm i ag-grid-community ag-grid-react",
+  },
+  {
+    name: "MUI X DataGrid", version: "v7 (free tier)", license: "MIT", licenseClass:"mit",
+    tagline: "Material-styled grid with filter panel, single-column sort, and column visibility. Multi-sort and advanced filters require Pro/Premium.",
+    covers: [
+      "Single-column sort (free)",
+      "Filter panel with operators per type",
+      "Column visibility menu",
+      "Pagination",
+      "CSV export",
+    ],
+    gaps: [
+      "Multi-column sort is Pro (paid)",
+      "Tree data, master/detail are Pro/Premium",
+      "Chip-style faceted UI is custom",
+      "URL sync is custom",
+      "Theming is Material-Design-first",
+    ],
+    demoUrl: "https://mui.com/x/react-data-grid/",
+    install: "npm i @mui/x-data-grid",
+  },
+  {
+    name: "Mantine DataTable", version: "v7+", license: "MIT", licenseClass:"mit",
+    tagline: "Built on Mantine. Sort + pagination via props, optional row selection / inline editing. Filters are a thin layer on top of column defs.",
+    covers: [
+      "Sort by column (single)",
+      "Row selection, expandable rows",
+      "Sticky header, infinite scroll",
+      "Pagination",
+    ],
+    gaps: [
+      "Multi-column sort needs custom logic",
+      "No built-in faceted filter UI",
+      "Requires Mantine ecosystem (theme provider)",
+      "URL sync, presets are custom",
+    ],
+    demoUrl: "https://icflorescu.github.io/mantine-datatable/",
+    install: "npm i mantine-datatable @mantine/core",
+  },
+  {
+    name: "react-data-grid", version: "v7+ (Adazzle)", license: "MIT", licenseClass:"mit",
+    tagline: "Performance-focused grid with frozen columns and inline editing. Filters and sorting are opt-in via column callbacks.",
+    covers: [
+      "Sortable column headers",
+      "Frozen / pinned columns",
+      "Cell editing",
+      "Row grouping",
+    ],
+    gaps: [
+      "No built-in filter UI",
+      "Multi-sort is custom",
+      "Faceted chips, presets, URL sync all custom",
+      "Default styling is utilitarian",
+    ],
+    demoUrl: "https://adazzle.github.io/react-data-grid/",
+    install: "npm i react-data-grid",
+  },
+  {
+    name: "glide-data-grid", version: "v6+", license: "MIT", licenseClass:"mit",
+    tagline: "Canvas-rendered grid optimized for millions of rows. Best when raw scale matters; UX is closer to a spreadsheet than a CRM list.",
+    covers: [
+      "Massive datasets via canvas",
+      "Cell editing + custom cells",
+      "Column resize, freeze, group",
+      "Copy / paste",
+    ],
+    gaps: [
+      "No built-in filter UX",
+      "Sort chips, facets, presets all custom",
+      "Theming requires canvas-aware styling",
+      "Cells aren't accessible HTML by default",
+    ],
+    demoUrl: "https://grid.glideapps.com/",
+    install: "npm i @glideapps/glide-data-grid",
+  },
+  {
+    name: "Refine.dev", version: "v4+", license: "MIT", licenseClass:"mit",
+    tagline: "Framework, not just a table. Plugs your data layer into list / show / edit pages with URL sync and CRUD scaffolding. Brings its own table via headless integration with another lib.",
+    covers: [
+      "URL state sync (filters, sorts, pagination)",
+      "List / show / edit page primitives",
+      "Auth, audit, access control hooks",
+      "Pluggable UI: Mantine, MUI, Antd, Chakra",
+    ],
+    gaps: [
+      "Opinionated about app architecture",
+      "Table itself is whichever UI kit you pick",
+      "Faceted-chip UX is still on you",
+      "Heavier buy-in than a single component",
+    ],
+    demoUrl: "https://refine.dev/demo/",
+    install: "npm create refine-app@latest",
+  },
+  {
+    name: "Algolia InstantSearch React", version: "v7+", license: "MIT (lib)", licenseClass:"mit",
+    tagline: "Faceted-search components (chips, refinement lists, range filters, URL sync) — but designed around a search backend, not an in-memory rows array.",
+    covers: [
+      "Refinement chips out of the box",
+      "Multi-faceted filtering",
+      "URL state sync first-class",
+      "Hits / pagination / sort widgets",
+    ],
+    gaps: [
+      "Requires Algolia, Meilisearch, or Typesense backend",
+      "Not a table — rows render however you choose",
+      "Multi-column table sort patterns aren't first-class",
+      "Algolia hosting itself is paid above a free tier",
+    ],
+    demoUrl: "https://www.algolia.com/doc/guides/building-search-ui/getting-started/react/",
+    install: "npm i react-instantsearch algoliasearch",
+  },
+];
+
+function LibraryLandscape(){
+  return (
+    <div className="lib-grid">
+      {LIBRARIES.map(l => <LibraryCard key={l.name} {...l} />)}
+    </div>
+  );
+}
+
+const SPEC_ROWS = [
+  ["Free-text search",                "partial","yes","yes","yes","partial","no","yes","yes"],
+  ["Multi-select facet popover",      "no","no","no","no","no","no","no","yes"],
+  ["Range / date-range filters",      "yes","yes","yes","partial","no","no","yes","yes"],
+  ["Conjunctive (AND) composition",   "yes","yes","yes","yes","yes","yes","yes","yes"],
+  ["Multi-column sort",               "yes","yes","no*","no","no","no","yes","partial"],
+  ["Sort chip strip / promote-primary","no","no","no","no","no","no","no","partial"],
+  ["Column visibility menu",          "yes","yes","yes","no","no","yes","yes","no"],
+  ["URL state sync",                  "no","no","no","no","no","no","yes","yes"],
+  ["Preset / saved views",            "no","no","no","no","no","no","yes","no"],
+  ["Empty-state suggestion",          "no","no","no","no","no","no","no","no"],
+  ["Server-side mode",                "yes","yes","yes","partial","yes","yes","yes","yes"],
+  ["Theming via CSS vars",            "yes","partial","no","no","yes","partial","partial","yes"],
+];
+
+function FeatureMatrix(){
+  const cell = (v) => v === "yes" ? <span className="yes">✓</span>
+    : v === "partial" ? <span className="partial">~</span>
+    : <span className="no">—</span>;
+  return (
+    <div className="matrix-wrap">
+      <table className="matrix">
+        <thead>
+          <tr>
+            <th>Capability</th>
+            {LIBRARIES.map(l => <th key={l.name}>{l.name.replace("InstantSearch ","").replace("Community","").replace(" Table","").replace(" DataGrid","")}</th>)}
+          </tr>
+        </thead>
+        <tbody>
+          {SPEC_ROWS.map(([label, ...vals]) => (
+            <tr key={label}>
+              <th>{label}</th>
+              {vals.map((v,i) => <td key={i} className="cell">{cell(v)}</td>)}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <div style={{padding:"10px 14px",fontSize:11.5,color:"var(--muted)",lineHeight:1.5}}>
+        ✓ built-in · ~ partial / requires light glue · — not built-in (custom or unsupported).<br/>
+        <i>* MUI X DataGrid free tier is single-column sort; multi-column sort is a Pro/Premium feature.</i>
+      </div>
+    </div>
+  );
+}
+
 function ComponentsGallery(){
   return (
     <div className="gal-page">
@@ -357,6 +622,27 @@ function ComponentsGallery(){
           <p>When 0 rows match, identifies the single filter whose removal would unblock the most rows.</p>
         </div>
         <div className="gal-section-body"><EmptyStateExhibit /></div>
+      </div>
+
+      <div className="gal-banner" style={{marginTop:32}}>
+        <h1>Library landscape — free options</h1>
+        <p>Each free table / data-grid library evaluated against the spec. Click <i>View live demo</i> on any card to see it running on the project's own docs site (live demos for these aren't embedded here because each library expects its own bundle setup, theme provider, or backend).</p>
+      </div>
+
+      <div className="gal-section">
+        <div className="gal-section-head">
+          <h2>8 · Library cards</h2>
+          <p>License + one-line summary + what it covers / what it lacks against this spec.</p>
+        </div>
+        <div className="gal-section-body"><LibraryLandscape /></div>
+      </div>
+
+      <div className="gal-section">
+        <div className="gal-section-head">
+          <h2>9 · Feature matrix</h2>
+          <p>Spec capability vs. each library, at-a-glance.</p>
+        </div>
+        <div className="gal-section-body flush"><FeatureMatrix /></div>
       </div>
     </div>
   );
