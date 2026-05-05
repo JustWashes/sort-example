@@ -95,6 +95,49 @@ function CustRoster({ onQuick, onOpen }){
   // When the user has filtered themselves into an empty result, find the
   // single filter whose removal would unblock the most rows. Cheap because
   // we only compute it when the table is empty.
+  // Pre-baked common queries. Each preset writes the full state at once so
+  // a single click takes the user from "blank table" to "the answer to a
+  // specific business question". The list is intentionally short -- if you
+  // catch yourself adding a sixth, ask whether the existing facets cover
+  // the variation instead.
+  const today = () => new Date().toISOString().slice(0,10);
+  const offsetDays = (n) => { const d = new Date(); d.setDate(d.getDate()+n); return d.toISOString().slice(0,10); };
+  const facet = (id, value) => ({...FACETS.find(f=>f.id===id), value});
+  const sort = (id, dir) => ({id, ...SORT_DEFS[id], dir});
+  const PRESETS = [
+    {name:"Oldest active sedan VIPs", apply:()=>{
+      setStatusTab("Active"); setSearch("");
+      setFilters([facet("vehicleClass", ["Sedan","Both"])]);
+      setSorts([sort("customerSince","asc"), sort("lifetime","desc")]);
+    }},
+    {name:"Renewals this week", apply:()=>{
+      setStatusTab("All"); setSearch("");
+      setFilters([facet("nextRenewalDate", {from: today(), to: offsetDays(7)})]);
+      setSorts([sort("nextRenewal","asc")]);
+    }},
+    {name:"VIPs at risk", apply:()=>{
+      setStatusTab("Active"); setSearch("");
+      setFilters([
+        facet("lifetime", {min: 1000}),
+        facet("daysSinceBooking", {min: 30}),
+      ]);
+      setSorts([sort("lifetime","desc")]);
+    }},
+    {name:"Reactivation candidates", apply:()=>{
+      setStatusTab("Suspended"); setSearch("");
+      setFilters([
+        facet("lifetime", {min: 500}),
+        facet("hasCredits", ["Yes"]),
+      ]);
+      setSorts([sort("customerSince","asc")]);
+    }},
+    {name:"New this month", apply:()=>{
+      setStatusTab("All"); setSearch("");
+      setFilters([facet("customerSince", {from: offsetDays(-30), to: today()})]);
+      setSorts([sort("customerSince","desc")]);
+    }},
+  ];
+
   // URL hash sync. Read once on mount so a shared link hydrates the table;
   // write on every state change so the URL always reflects what the user is
   // looking at and they can copy-paste at any moment.
@@ -157,6 +200,12 @@ function CustRoster({ onQuick, onOpen }){
 
       <div className="table-wrap">
         <div className="fbar">
+          <div className="fbar-row preset-row">
+            <span className="fbar-tag" style={{background:"transparent",color:"var(--muted)"}}>Quick views</span>
+            {PRESETS.map(p => (
+              <button key={p.name} className="preset-chip" onClick={p.apply}><I.zap />{p.name}</button>
+            ))}
+          </div>
           <div className="fbar-row">
             <div className="search grow"><I.search /><input placeholder="Search by name, email, ZIP, city…" value={search} onChange={e=>setSearch(e.target.value)} /></div>
             <div className="seg" style={{marginLeft:"auto"}}>

@@ -48,6 +48,13 @@ const FilterBarStyles = `
 .fbar-tag{display:inline-flex;align-items:center;height:26px;padding:0 8px;border-radius:6px;background:#EEF1F6;color:var(--ink-2);font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;flex-shrink:0;margin-right:4px}
 .fbar-tag.rank{background:var(--primary-50);color:var(--primary)}
 
+/* Preset (Quick view) chips. Sit above the filter rows; each one applies a
+   pre-baked combination of filters + sort. */
+.preset-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.preset-chip{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 12px;border-radius:99px;background:#fff;border:1px solid var(--line);font-size:12px;font-weight:600;color:var(--ink-2);cursor:pointer}
+.preset-chip:hover{border-color:var(--primary);color:var(--primary);background:#F8FAFD}
+.preset-chip svg{width:12px;height:12px}
+
 /* Sort chip strip */
 .sort-strip{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .sort-strip .label{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.07em;text-transform:uppercase;margin-right:2px}

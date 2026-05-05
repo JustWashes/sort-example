@@ -117,6 +117,50 @@ function TechRoster({ onQuick, onOpen }){
   const filtered = applyFilters(segFiltered, filters, search, SEARCH_FIELDS);
   const techs = applySort(filtered, sorts);
 
+  const facet = (id, value) => ({...FACETS.find(f=>f.id===id), value});
+  const sort = (id, dir) => ({id, ...SORT_DEFS[id], dir});
+  const PRESETS = [
+    {name:"Top performers", apply:()=>{
+      setFilter("All"); setSearch("");
+      setFilters([
+        facet("rating", {min: 4.5}),
+        facet("bgCheck", ["Confirmed"]),
+      ]);
+      setSorts([sort("rating","desc"), sort("monthlyJobs","desc")]);
+    }},
+    {name:"Under-utilized certified", apply:()=>{
+      setFilter("Certified"); setSearch("");
+      setFilters([
+        facet("rating", {min: 4.5}),
+        facet("monthlyJobs", {max: 10}),
+      ]);
+      setSorts([sort("monthlyJobs","asc")]);
+    }},
+    {name:"Onboarding stuck", apply:()=>{
+      setFilter("All"); setSearch("");
+      setFilters([
+        facet("status", ["Pending"]),
+        facet("onboarding", {max: 99}),
+      ]);
+      setSorts([sort("joined","asc")]);
+    }},
+    {name:"Active w/ no recent jobs", apply:()=>{
+      setFilter("All"); setSearch("");
+      setFilters([
+        facet("status", ["Active"]),
+        facet("monthlyJobs", {max: 0}),
+      ]);
+      setSorts([sort("lifetimeJobs","desc")]);
+    }},
+    {name:"New this month", apply:()=>{
+      const today = new Date().toISOString().slice(0,10);
+      const ago30 = new Date(); ago30.setDate(ago30.getDate()-30);
+      setFilter("All"); setSearch("");
+      setFilters([facet("joined", {from: ago30.toISOString().slice(0,10), to: today})]);
+      setSorts([sort("joined","desc")]);
+    }},
+  ];
+
   const hydratedRef = React.useRef(false);
   React.useEffect(() => {
     const decoded = decodeRosterState(window.location.hash, FACETS, SORT_DEFS);
@@ -165,6 +209,12 @@ function TechRoster({ onQuick, onOpen }){
 
       <div className="table-wrap">
         <div className="fbar">
+          <div className="fbar-row preset-row">
+            <span className="fbar-tag" style={{background:"transparent",color:"var(--muted)"}}>Quick views</span>
+            {PRESETS.map(p => (
+              <button key={p.name} className="preset-chip" onClick={p.apply}><I.zap />{p.name}</button>
+            ))}
+          </div>
           <div className="fbar-row">
             <div className="search grow"><I.search /><input placeholder="Search by name, email, handle, ZIP, tier…" value={search} onChange={e=>setSearch(e.target.value)} /></div>
             <div className="seg" style={{marginLeft:"auto"}}>
