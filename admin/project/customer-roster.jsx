@@ -38,10 +38,10 @@ function CustRoster({ onQuick, onOpen }){
   const FACETS = [
     {id:"status",label:"Status",kind:"set",get:r=>r.status,options:["Active","Suspended","Inactive"]},
     {id:"planType",label:"Plan type",kind:"set",get:r=>planTypesOf(r.plan),options:PLAN_TYPE_OPTIONS},
-    {id:"plan",label:"Plan tier",kind:"set",get:r=>r.plan==="No Plan"?"No plan":r.plan.includes("Monthly")&&!r.plan.includes("Bi-")?"Monthly":r.plan.includes("Bi-Monthly")?"Bi-monthly":r.plan.includes("Quarterly")?"Quarterly":"Other",options:["No plan","Quarterly","Bi-monthly","Monthly"]},
+    {id:"vehicleClass",label:"Vehicle class",kind:"set",get:r=>vehicleClassOf(r.plan),options:["Sedan","Large SUV","Both","None"]},
+    {id:"cadence",label:"Cadence",kind:"set",get:r=>r.plan==="No Plan"?"No plan":r.plan.includes("Monthly")&&!r.plan.includes("Bi-")?"Monthly":r.plan.includes("Bi-Monthly")?"Bi-monthly":r.plan.includes("Quarterly")?"Quarterly":"Other",options:["No plan","Quarterly","Bi-monthly","Monthly"]},
     {id:"zip",label:"ZIP",kind:"set",get:r=>r.zip,options:[...new Set(CUSTOMERS.map(c=>c.zip))].sort()},
     {id:"city",label:"City",kind:"set",get:r=>r.city,options:[...new Set(CUSTOMERS.map(c=>c.city))].sort()},
-    {id:"cadence",label:"Cadence",kind:"set",get:r=>r.cadence,options:[...new Set(CUSTOMERS.map(c=>c.cadence))]},
     {id:"bookings",label:"Bookings",kind:"range",get:r=>r.bookings,minHint:"0",maxHint:"100"},
     {id:"credits",label:"Credits",kind:"range",get:r=>r.credits,minHint:"0",maxHint:"20"},
     {id:"lifetime",label:"Lifetime spend",kind:"range",get:r=>r.lifetime,minHint:"$0",maxHint:"$10k"},
@@ -51,8 +51,7 @@ function CustRoster({ onQuick, onOpen }){
   const SORT_DEFS = {
     name:{get:r=>r.name,type:"str",label:"Name"},
     status:{get:r=>r.status,type:"str",label:"Status"},
-    plan:{get:r=>planTier(r.plan),type:"num",label:"Plan tier"},
-    cadence:{get:r=>r.cadence,type:"str",label:"Cadence"},
+    cadence:{get:r=>planTier(r.plan),type:"num",label:"Cadence"},
     credits:{get:r=>r.credits,type:"num",label:"Credits"},
     nextRenewal:{get:r=>r.nextRenewal==="—"?null:r.nextRenewal,type:"date",label:"Renewal"},
     bookings:{get:r=>r.bookings,type:"num",label:"Bookings"},
@@ -156,7 +155,7 @@ function CustRoster({ onQuick, onOpen }){
           <thead><tr>
             <SortHeader id="name" label="Customer" sorts={sorts} onSort={onSort} />
             <SortHeader id="status" label="Status" sorts={sorts} onSort={onSort} />
-            <SortHeader id="plan" label="Plan" sorts={sorts} onSort={onSort} />
+            <th>Plan</th>
             <SortHeader id="cadence" label="Cadence" sorts={sorts} onSort={onSort} />
             <SortHeader id="credits" label="Credits" sorts={sorts} onSort={onSort} align="right" />
             <SortHeader id="nextRenewal" label="Renewal" sorts={sorts} onSort={onSort} />
@@ -172,7 +171,7 @@ function CustRoster({ onQuick, onOpen }){
                 <td><div className="who"><div className="avatar avatar-md" style={{background:`linear-gradient(135deg,${c.color},${shade(c.color,-22)})`}}>{c.initials}</div><div className="meta"><span className="n">{c.name}</span><span className="e">{c.email}</span></div></div></td>
                 <td><span className={"pill "+(c.status==="Active"?"pill-green":c.status==="Suspended"?"pill-amber":"pill-grey")+" pill-soft"}><span className={"dot "+(c.status==="Active"?"dot-green":c.status==="Suspended"?"dot-amber":"")} />{c.status}</span></td>
                 <td>{c.plan === "No Plan" ? <span className="muted" style={{fontSize:12}}>No plan</span> : <span className="pill pill-blue pill-soft">{c.plan.length>32?c.plan.slice(0,30)+"…":c.plan}</span>}</td>
-                <td className="muted" style={{fontSize:12.5}}>{c.cadence}</td>
+                <td className="muted" style={{fontSize:12.5}}>{c.plan==="No Plan"?"No plan":c.plan.includes("Bi-Monthly")?"Bi-monthly":c.plan.includes("Monthly")?"Monthly":c.plan.includes("Quarterly")?"Quarterly":"—"}</td>
                 <td style={{textAlign:"right"}}><span style={{fontWeight:700,color: c.credits>0?"var(--violet)":"var(--muted)"}}>{c.credits}</span></td>
                 <td className="muted" style={{fontSize:12.5}}>{c.nextRenewal}</td>
                 <td style={{textAlign:"right",fontWeight:700}}>{c.bookings}</td>
