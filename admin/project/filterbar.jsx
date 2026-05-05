@@ -42,6 +42,12 @@ const FilterBarStyles = `
 .range-inputs input:focus{outline:0;border-color:var(--primary)}
 .range-inputs label{font-size:10.5px;font-weight:700;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;display:block;margin-bottom:4px}
 
+/* Filter / rank row labels: small uppercase tag on the left of each
+   composing row so users can see at-a-glance that *narrow* and *rank* are
+   different operations. */
+.fbar-tag{display:inline-flex;align-items:center;height:26px;padding:0 8px;border-radius:6px;background:#EEF1F6;color:var(--ink-2);font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;flex-shrink:0;margin-right:4px}
+.fbar-tag.rank{background:var(--primary-50);color:var(--primary)}
+
 /* Sort chip strip */
 .sort-strip{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .sort-strip .label{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.07em;text-transform:uppercase;margin-right:2px}

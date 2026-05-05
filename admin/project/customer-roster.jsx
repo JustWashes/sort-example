@@ -149,6 +149,7 @@ function CustRoster({ onQuick, onOpen }){
           </div>
 
           <div className="fbar-row">
+            <span className="fbar-tag">Narrow</span>
             {filters.map(f => (
               <FacetChip key={f.id} facet={f} rows={CUSTOMERS}
                 onUpdate={patch=>updateFacet(f.id, patch)}
@@ -160,8 +161,8 @@ function CustRoster({ onQuick, onOpen }){
 
           {sorts.length > 0 && (
             <div className="fbar-row">
+              <span className="fbar-tag rank">Rank</span>
               <div className="sort-strip">
-                <span className="label">Sorted by</span>
                 {sorts.map((s,i) => (
                   <div key={s.id} className={"sort-chip"+(i===0?" primary":"")} onClick={()=>promoteSort(s.id)} title={i===0?"Primary sort":"Click to make primary"} style={{cursor:i===0?"default":"pointer"}}>
                     <span className="ord">{i+1}</span>
